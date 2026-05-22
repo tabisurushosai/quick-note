@@ -4,10 +4,17 @@ interface Note {
 
 let notes: Note[] = [];
 let currentIndex: number = -1;
+let isPremium: boolean = false;
+let trialStartTs: number | null = null;
+let searchQuery: string = '';
 
 const noteList = document.getElementById('note-list') as HTMLDivElement;
 const textArea = document.getElementById('note-content') as HTMLTextAreaElement;
 const newNoteBtn = document.getElementById('new-note') as HTMLButtonElement;
+const searchInput = document.getElementById('search-input') as HTMLInputElement;
+const searchContainer = document.getElementById('search-container') as HTMLDivElement;
+const upgradeBtn = document.getElementById('upgrade-btn') as HTMLButtonElement;
+const premiumBadge = document.getElementById('premium-badge') as HTMLSpanElement;
 
 function translateUI() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -20,9 +27,28 @@ function translateUI() {
   });
 }
 
+function updatePremiumUI() {
+  if (isPremium) {
+    premiumBadge.style.display = 'inline';
+    upgradeBtn.style.display = 'none';
+    searchContainer.style.display = 'block';
+  } else {
+    premiumBadge.style.display = 'none';
+    upgradeBtn.style.display = 'inline';
+    searchContainer.style.display = 'none';
+    searchQuery = '';
+    searchInput.value = '';
+  }
+}
+
 function renderList() {
   noteList.innerHTML = '';
-  notes.forEach((note, index) => {
+  
+  const filtered = notes.map((note, index) => ({ ...note, originalIndex: index }))
+    .filter(note => !isPremium || !searchQuery || note.content.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  filtered.forEach((note) => {
+    const index = note.originalIndex;
     const div = document.createElement('div');
     div.className = 'note-item' + (index === currentIndex ? ' active' : '');
     
@@ -78,16 +104,38 @@ function selectNote(index: number) {
 }
 
 function saveNotes() {
-  chrome.storage.local.set({ notes, lastSelectedIndex: currentIndex });
+  chrome.storage.local.set({ 
+    notes, 
+    lastSelectedIndex: currentIndex,
+    isPremium,
+    trialStartTs
+  });
 }
 
 newNoteBtn.addEventListener('click', () => {
+  if (!isPremium && notes.length >= 10) {
+    alert(chrome.i18n.getMessage('premiumLimit'));
+    return;
+  }
   notes.push({ content: '' });
   currentIndex = notes.length - 1;
   saveNotes();
   renderList();
   textArea.value = '';
   textArea.focus();
+});
+
+searchInput.addEventListener('input', () => {
+  searchQuery = searchInput.value;
+  renderList();
+});
+
+upgradeBtn.addEventListener('click', () => {
+  // Simulate Stripe payment success
+  isPremium = true;
+  saveNotes();
+  updatePremiumUI();
+  renderList();
 });
 
 textArea.addEventListener('input', () => {
@@ -108,7 +156,16 @@ textArea.addEventListener('input', () => {
 
 translateUI();
 
-chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote'], (result) => {
+chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote', 'isPremium', 'trialStartTs'], (result) => {
+  isPremium = result.isPremium || false;
+  trialStartTs = result.trialStartTs || Date.now();
+  
+  if (!result.trialStartTs) {
+    saveNotes(); // Persist trial start
+  }
+
+  updatePremiumUI();
+
   if (result.notes) {
     notes = result.notes;
     currentIndex = result.lastSelectedIndex ?? (notes.length > 0 ? 0 : -1);

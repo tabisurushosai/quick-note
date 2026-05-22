@@ -17,6 +17,11 @@
   <div id="app">
     <div class="controls">
       <button id="new-note" data-i18n="btnNew">New Note</button>
+      <span id="premium-badge" style="display:none; color: gold; font-weight: bold; margin-left: 10px;" data-i18n="premiumBadge">Premium</span>
+      <button id="upgrade-btn" style="display:none; margin-left: 10px;" data-i18n="btnUpgrade">Upgrade</button>
+    </div>
+    <div id="search-container" style="display:none; margin-bottom: 10px;">
+      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" style="width: 100%; box-sizing: border-box;" placeholder="Search...">
     </div>
     <div id="note-list"></div>
     <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="Select or create a note..."></textarea>

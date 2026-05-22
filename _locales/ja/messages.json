@@ -5,5 +5,9 @@
   "placeholder": { "message": "メモを選択するか新規作成してください..." },
   "emptyNote": { "message": "(空のメモ $ID$)", "placeholders": { "ID": { "content": "$1" } } },
   "tooltipDelete": { "message": "メモを削除" },
-  "confirmDelete": { "message": "このメモを削除してもよろしいですか？" }
+  "confirmDelete": { "message": "このメモを削除してもよろしいですか？" },
+  "searchPlaceholder": { "message": "メモを検索..." },
+  "premiumLimit": { "message": "無料版の制限(10件)に達しました。プレミアム版にアップグレードして無制限に！" },
+  "btnUpgrade": { "message": "プレミアムにアップグレード" },
+  "premiumBadge": { "message": "プレミアム" }
 }
