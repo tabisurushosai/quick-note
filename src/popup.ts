@@ -115,5 +115,6 @@ chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote'], (result) =
   renderList();
   if (currentIndex >= 0) {
     textArea.value = notes[currentIndex].content;
+    textArea.focus();
   }
 });
