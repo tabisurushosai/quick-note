@@ -1,1 +1,9 @@
-{ "extName":{"message":"Quick Note"},"extDesc":{"message":"Jot a note instantly from the toolbar."} }
+{
+  "extName": { "message": "Quick Note" },
+  "extDesc": { "message": "Jot a note instantly from the toolbar." },
+  "btnNew": { "message": "New Note" },
+  "placeholder": { "message": "Select or create a note..." },
+  "emptyNote": { "message": "(Empty Note $ID$)", "placeholders": { "ID": { "content": "$1" } } },
+  "tooltipDelete": { "message": "Delete note" },
+  "confirmDelete": { "message": "Are you sure you want to delete this note?" }
+}

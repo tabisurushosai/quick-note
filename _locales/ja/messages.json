@@ -1,1 +1,9 @@
-{ "extName":{"message":"さっとメモ"},"extDesc":{"message":"ツールバーからすぐ書けるメモ。思いついた事を一瞬で残せます。"} }
+{
+  "extName": { "message": "さっとメモ" },
+  "extDesc": { "message": "ツールバーからすぐ書けるメモ。思いついた事を一瞬で残せます。" },
+  "btnNew": { "message": "新規メモ" },
+  "placeholder": { "message": "メモを選択するか新規作成してください..." },
+  "emptyNote": { "message": "(空のメモ $ID$)", "placeholders": { "ID": { "content": "$1" } } },
+  "tooltipDelete": { "message": "メモを削除" },
+  "confirmDelete": { "message": "このメモを削除してもよろしいですか？" }
+}

@@ -9,6 +9,17 @@ const noteList = document.getElementById('note-list') as HTMLDivElement;
 const textArea = document.getElementById('note-content') as HTMLTextAreaElement;
 const newNoteBtn = document.getElementById('new-note') as HTMLButtonElement;
 
+function translateUI() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key) el.textContent = chrome.i18n.getMessage(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (key) (el as HTMLTextAreaElement).placeholder = chrome.i18n.getMessage(key);
+  });
+}
+
 function renderList() {
   noteList.innerHTML = '';
   notes.forEach((note, index) => {
@@ -17,13 +28,13 @@ function renderList() {
     
     const titleSpan = document.createElement('span');
     const title = note.content.split('\n')[0].trim();
-    titleSpan.textContent = title || `(Empty Note ${index + 1})`;
+    titleSpan.textContent = title || chrome.i18n.getMessage('emptyNote', [(index + 1).toString()]);
     div.appendChild(titleSpan);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'delete-note';
     deleteBtn.textContent = '×';
-    deleteBtn.title = 'Delete note';
+    deleteBtn.title = chrome.i18n.getMessage('tooltipDelete');
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteNote(index);
@@ -36,7 +47,7 @@ function renderList() {
 }
 
 function deleteNote(index: number) {
-  if (!confirm('Are you sure you want to delete this note?')) return;
+  if (!confirm(chrome.i18n.getMessage('confirmDelete'))) return;
   
   notes.splice(index, 1);
   if (currentIndex === index) {
@@ -89,11 +100,13 @@ textArea.addEventListener('input', () => {
       const titleSpan = activeItem.querySelector('span');
       if (titleSpan) {
         const title = textArea.value.split('\n')[0].trim();
-        titleSpan.textContent = title || `(Empty Note ${currentIndex + 1})`;
+        titleSpan.textContent = title || chrome.i18n.getMessage('emptyNote', [(currentIndex + 1).toString()]);
       }
     }
   }
 });
+
+translateUI();
 
 chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote'], (result) => {
   if (result.notes) {
