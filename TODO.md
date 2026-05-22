@@ -7,5 +7,5 @@
 - [x] T006: _locales ja/en を chrome.i18n で全UIに適用
 - [x] T007: Premiumゲート(trial_start_ts+Stripe)。無料はメモ10件まで、Premiumで無制限+検索
 - [x] T008: npm run build を通しts/lint解消
-- [ ] T009: release/quick-note.zip 生成(node_modules除外)
+- [x] T009: release/quick-note.zip 生成(node_modules除外)
 - [ ] T010: legal/PRIVACY.md と TERMS.md(外部通信なし・データ収集なし明記)
