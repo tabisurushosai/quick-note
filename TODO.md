@@ -2,7 +2,7 @@
 - [x] T001: popup.html/src/popup.ts にテキストエリアを置き、入力をchrome.storage.localに自動保存・再表示するだけ。build通ればコミット
 - [x] T002: 複数メモ対応(メモ一覧+新規ボタン)、storageに配列保存
 - [x] T003: 各メモの削除ボタン
-- [ ] T004: メモのタイトル(先頭行)を一覧に表示し選択で編集
+- [x] T004: メモのタイトル(先頭行)を一覧に表示し選択で編集
 - [ ] T005: 起動時にstorage.localから復元
 - [ ] T006: _locales ja/en を chrome.i18n で全UIに適用
 - [ ] T007: Premiumゲート(trial_start_ts+Stripe)。無料はメモ10件まで、Premiumで無制限+検索

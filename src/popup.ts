@@ -63,6 +63,7 @@ function selectNote(index: number) {
   currentIndex = index;
   textArea.value = notes[index].content;
   renderList();
+  textArea.focus();
 }
 
 function saveNotes() {
