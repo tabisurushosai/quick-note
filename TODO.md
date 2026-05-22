@@ -1,5 +1,5 @@
 # quick-note TODO (細粒度)
-- [ ] T001: popup.html/src/popup.ts にテキストエリアを置き、入力をchrome.storage.localに自動保存・再表示するだけ。build通ればコミット
+- [x] T001: popup.html/src/popup.ts にテキストエリアを置き、入力をchrome.storage.localに自動保存・再表示するだけ。build通ればコミット
 - [ ] T002: 複数メモ対応(メモ一覧+新規ボタン)、storageに配列保存
 - [ ] T003: 各メモの削除ボタン
 - [ ] T004: メモのタイトル(先頭行)を一覧に表示し選択で編集
