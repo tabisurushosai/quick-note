@@ -14,12 +14,49 @@ function renderList() {
   notes.forEach((note, index) => {
     const div = document.createElement('div');
     div.className = 'note-item' + (index === currentIndex ? ' active' : '');
-    // T004 will handle title specifically, but we need some text here.
+    
+    const titleSpan = document.createElement('span');
     const title = note.content.split('\n')[0].trim();
-    div.textContent = title || `(Empty Note ${index + 1})`;
+    titleSpan.textContent = title || `(Empty Note ${index + 1})`;
+    div.appendChild(titleSpan);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-note';
+    deleteBtn.textContent = '×';
+    deleteBtn.title = 'Delete note';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteNote(index);
+    });
+    div.appendChild(deleteBtn);
+
     div.addEventListener('click', () => selectNote(index));
     noteList.appendChild(div);
   });
+}
+
+function deleteNote(index: number) {
+  if (!confirm('Are you sure you want to delete this note?')) return;
+  
+  notes.splice(index, 1);
+  if (currentIndex === index) {
+    currentIndex = notes.length > 0 ? Math.max(0, index - 1) : -1;
+  } else if (currentIndex > index) {
+    currentIndex--;
+  }
+
+  if (notes.length === 0) {
+    notes = [{ content: '' }];
+    currentIndex = 0;
+  }
+
+  saveNotes();
+  renderList();
+  if (currentIndex >= 0) {
+    textArea.value = notes[currentIndex].content;
+  } else {
+    textArea.value = '';
+  }
 }
 
 function selectNote(index: number) {
@@ -48,8 +85,11 @@ textArea.addEventListener('input', () => {
     // Update the list title as user types
     const activeItem = noteList.children[currentIndex] as HTMLDivElement;
     if (activeItem) {
-      const title = textArea.value.split('\n')[0].trim();
-      activeItem.textContent = title || `(Empty Note ${currentIndex + 1})`;
+      const titleSpan = activeItem.querySelector('span');
+      if (titleSpan) {
+        const title = textArea.value.split('\n')[0].trim();
+        titleSpan.textContent = title || `(Empty Note ${currentIndex + 1})`;
+      }
     }
   }
 });
