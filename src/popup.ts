@@ -41,6 +41,14 @@ function updatePremiumUI() {
   }
 }
 
+interface StorageResult {
+  notes?: Note[];
+  lastSelectedIndex?: number;
+  quickNote?: string;
+  isPremium?: boolean;
+  trialStartTs?: number;
+}
+
 function renderList() {
   noteList.innerHTML = '';
   
@@ -51,6 +59,7 @@ function renderList() {
     const index = note.originalIndex;
     const div = document.createElement('div');
     div.className = 'note-item' + (index === currentIndex ? ' active' : '');
+    div.dataset.index = index.toString();
     
     const titleSpan = document.createElement('span');
     const title = note.content.split('\n')[0].trim();
@@ -143,7 +152,7 @@ textArea.addEventListener('input', () => {
     notes[currentIndex].content = textArea.value;
     saveNotes();
     // Update the list title as user types
-    const activeItem = noteList.children[currentIndex] as HTMLDivElement;
+    const activeItem = Array.from(noteList.children).find(el => (el as HTMLDivElement).dataset.index === currentIndex.toString()) as HTMLDivElement | undefined;
     if (activeItem) {
       const titleSpan = activeItem.querySelector('span');
       if (titleSpan) {
@@ -156,7 +165,8 @@ textArea.addEventListener('input', () => {
 
 translateUI();
 
-chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote', 'isPremium', 'trialStartTs'], (result) => {
+chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote', 'isPremium', 'trialStartTs'], (res) => {
+  const result = res as StorageResult;
   isPremium = result.isPremium || false;
   trialStartTs = result.trialStartTs || Date.now();
   
