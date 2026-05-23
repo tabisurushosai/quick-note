@@ -7,6 +7,12 @@
   "tooltipDelete": { "message": "メモを削除" },
   "confirmDelete": { "message": "このメモを削除してもよろしいですか？" },
   "searchPlaceholder": { "message": "メモを検索..." },
+  "emptyNoteList": { "message": "表示できるメモはありません。" },
+  "emptySearchResults": { "message": "一致するメモはありません。" },
+  "statusLoading": { "message": "読み込み中..." },
+  "statusSaving": { "message": "保存中..." },
+  "statusSaved": { "message": "保存済み" },
+  "statusSaveError": { "message": "保存できませんでした" },
   "premiumLimit": { "message": "無料版の制限(10件)に達しました。プレミアム版にアップグレードして無制限に！" },
   "btnUpgrade": { "message": "プレミアムにアップグレード" },
   "premiumBadge": { "message": "プレミアム" }

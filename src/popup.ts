@@ -15,30 +15,39 @@ const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchContainer = document.getElementById('search-container') as HTMLDivElement;
 const upgradeBtn = document.getElementById('upgrade-btn') as HTMLButtonElement;
 const premiumBadge = document.getElementById('premium-badge') as HTMLSpanElement;
+const appStatus = document.getElementById('app-status') as HTMLSpanElement;
+
+function getMessage(key: string, substitutions?: string | string[]) {
+  return chrome.i18n.getMessage(key, substitutions) || key;
+}
 
 function translateUI() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (key) el.textContent = chrome.i18n.getMessage(key);
+    if (key) el.textContent = getMessage(key);
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
-    if (key) (el as HTMLTextAreaElement).placeholder = chrome.i18n.getMessage(key);
+    if (key) (el as HTMLTextAreaElement).placeholder = getMessage(key);
   });
 }
 
 function updatePremiumUI() {
   if (isPremium) {
-    premiumBadge.style.display = 'inline';
-    upgradeBtn.style.display = 'none';
-    searchContainer.style.display = 'block';
+    premiumBadge.hidden = false;
+    upgradeBtn.hidden = true;
+    searchContainer.hidden = false;
   } else {
-    premiumBadge.style.display = 'none';
-    upgradeBtn.style.display = 'inline';
-    searchContainer.style.display = 'none';
+    premiumBadge.hidden = true;
+    upgradeBtn.hidden = false;
+    searchContainer.hidden = true;
     searchQuery = '';
     searchInput.value = '';
   }
+}
+
+function updateStatus(messageKey: string) {
+  appStatus.textContent = getMessage(messageKey);
 }
 
 interface StorageResult {
@@ -55,6 +64,14 @@ function renderList() {
   const filtered = notes.map((note, index) => ({ ...note, originalIndex: index }))
     .filter(note => !isPremium || !searchQuery || note.content.toLowerCase().includes(searchQuery.toLowerCase()));
 
+  if (filtered.length === 0) {
+    const emptyState = document.createElement('div');
+    emptyState.className = 'empty-state';
+    emptyState.textContent = searchQuery ? getMessage('emptySearchResults') : getMessage('emptyNoteList');
+    noteList.appendChild(emptyState);
+    return;
+  }
+
   filtered.forEach((note) => {
     const index = note.originalIndex;
     const div = document.createElement('div');
@@ -62,14 +79,15 @@ function renderList() {
     div.dataset.index = index.toString();
     
     const titleSpan = document.createElement('span');
+    titleSpan.className = 'note-title';
     const title = note.content.split('\n')[0].trim();
-    titleSpan.textContent = title || chrome.i18n.getMessage('emptyNote', [(index + 1).toString()]);
+    titleSpan.textContent = title || getMessage('emptyNote', [(index + 1).toString()]);
     div.appendChild(titleSpan);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'delete-note';
     deleteBtn.textContent = '×';
-    deleteBtn.title = chrome.i18n.getMessage('tooltipDelete');
+    deleteBtn.title = getMessage('tooltipDelete');
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteNote(index);
@@ -82,7 +100,7 @@ function renderList() {
 }
 
 function deleteNote(index: number) {
-  if (!confirm(chrome.i18n.getMessage('confirmDelete'))) return;
+  if (!confirm(getMessage('confirmDelete'))) return;
   
   notes.splice(index, 1);
   if (currentIndex === index) {
@@ -113,17 +131,20 @@ function selectNote(index: number) {
 }
 
 function saveNotes() {
+  updateStatus('statusSaving');
   chrome.storage.local.set({ 
     notes, 
     lastSelectedIndex: currentIndex,
     isPremium,
     trialStartTs
+  }, () => {
+    updateStatus(chrome.runtime.lastError ? 'statusSaveError' : 'statusSaved');
   });
 }
 
 newNoteBtn.addEventListener('click', () => {
   if (!isPremium && notes.length >= 10) {
-    alert(chrome.i18n.getMessage('premiumLimit'));
+    alert(getMessage('premiumLimit'));
     return;
   }
   notes.push({ content: '' });
@@ -157,7 +178,7 @@ textArea.addEventListener('input', () => {
       const titleSpan = activeItem.querySelector('span');
       if (titleSpan) {
         const title = textArea.value.split('\n')[0].trim();
-        titleSpan.textContent = title || chrome.i18n.getMessage('emptyNote', [(currentIndex + 1).toString()]);
+        titleSpan.textContent = title || getMessage('emptyNote', [(currentIndex + 1).toString()]);
       }
     }
   }
@@ -197,4 +218,5 @@ chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote', 'isPremium'
     textArea.value = notes[currentIndex].content;
     textArea.focus();
   }
+  updateStatus('statusSaved');
 });

@@ -3,28 +3,210 @@
 <head>
   <meta charset="utf-8">
   <style>
-    body { width: 300px; font-family: system-ui; padding: 10px; margin: 0; }
-    #note-list { border-bottom: 1px solid #ccc; margin-bottom: 10px; padding-bottom: 10px; max-height: 100px; overflow-y: auto; }
-    .note-item { cursor: pointer; padding: 5px; border: 1px solid #eee; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
-    .note-item.active { background-color: #e0e0e0; }
-    .delete-note { color: #999; cursor: pointer; padding: 0 5px; border: none; background: none; font-size: 14px; }
-    .delete-note:hover { color: #f00; }
-    #note-content { width: 100%; height: 200px; box-sizing: border-box; }
-    .controls { margin-bottom: 10px; }
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --surface: #ffffff;
+      --surface-muted: #f1f4f8;
+      --border: #d8dee8;
+      --border-strong: #9aa8b8;
+      --text: #17202a;
+      --muted: #5b6675;
+      --primary: #1f5fbf;
+      --primary-strong: #17478f;
+      --danger: #b42318;
+      --focus: #2f80ed;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 340px;
+      margin: 0;
+      padding: 14px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    #app {
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      min-height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    .note-item:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    #new-note {
+      padding: 0 12px;
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 650;
+    }
+
+    #new-note:hover {
+      background: var(--primary-strong);
+    }
+
+    #upgrade-btn {
+      padding: 0 10px;
+    }
+
+    #premium-badge {
+      border: 1px solid #b8860b;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #fff7d6;
+      color: #6f4d00;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    #search-input {
+      width: 100%;
+      min-height: 36px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    #note-list {
+      display: grid;
+      gap: 6px;
+      max-height: 126px;
+      overflow-y: auto;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+
+    .note-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 8px 8px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: var(--surface);
+      cursor: pointer;
+    }
+
+    .note-item:hover {
+      background: var(--surface-muted);
+    }
+
+    .note-item.active {
+      border-color: var(--primary);
+      background: #eaf2ff;
+    }
+
+    .note-title {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--text);
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .delete-note {
+      width: 28px;
+      min-height: 28px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .delete-note:hover {
+      color: var(--danger);
+      background: #fff0ee;
+    }
+
+    .empty-state {
+      padding: 14px 10px;
+      border: 1px dashed var(--border-strong);
+      border-radius: 8px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    #note-content {
+      width: 100%;
+      height: 220px;
+      padding: 10px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
   <div id="app">
     <div class="controls">
       <button id="new-note" data-i18n="btnNew">New Note</button>
-      <span id="premium-badge" style="display:none; color: gold; font-weight: bold; margin-left: 10px;" data-i18n="premiumBadge">Premium</span>
-      <button id="upgrade-btn" style="display:none; margin-left: 10px;" data-i18n="btnUpgrade">Upgrade</button>
+      <span id="premium-badge" hidden data-i18n="premiumBadge">Premium</span>
+      <button id="upgrade-btn" hidden data-i18n="btnUpgrade">Upgrade</button>
     </div>
-    <div id="search-container" style="display:none; margin-bottom: 10px;">
-      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" style="width: 100%; box-sizing: border-box;" placeholder="Search...">
+    <div id="search-container" hidden>
+      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search...">
     </div>
     <div id="note-list"></div>
     <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="Select or create a note..."></textarea>
+    <div class="status-row" aria-live="polite">
+      <span id="app-status" data-i18n="statusLoading">Loading notes...</span>
+    </div>
   </div>
   <script type="module" src="/src/popup.ts"></script>
 </body>
