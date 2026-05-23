@@ -7,6 +7,12 @@
   "tooltipDelete": { "message": "Delete note" },
   "confirmDelete": { "message": "Are you sure you want to delete this note?" },
   "searchPlaceholder": { "message": "Search notes..." },
+  "emptyNoteList": { "message": "No notes to show." },
+  "emptySearchResults": { "message": "No matching notes." },
+  "statusLoading": { "message": "Loading notes..." },
+  "statusSaving": { "message": "Saving..." },
+  "statusSaved": { "message": "Saved" },
+  "statusSaveError": { "message": "Could not save" },
   "premiumLimit": { "message": "Free limit reached (10 notes). Upgrade to Premium for unlimited notes!" },
   "btnUpgrade": { "message": "Upgrade to Premium" },
   "premiumBadge": { "message": "Premium" }
