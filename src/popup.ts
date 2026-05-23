@@ -1,6 +1,11 @@
-interface Note {
-  content: string;
-}
+import {
+  deleteNoteAt,
+  getFilteredNotes as getFilteredNoteModels,
+  getNoteTitle as getNoteTitleText,
+  hydrateNoteState,
+  type Note,
+} from './core/notes';
+import { chromeLocalNotesStorage } from './storage/chromeLocalNotesStorage';
 
 let notes: Note[] = [];
 let currentIndex: number = -1;
@@ -55,22 +60,12 @@ function updateStatus(messageKey: string) {
   appStatus.textContent = getMessage(messageKey);
 }
 
-interface StorageResult {
-  notes?: Note[];
-  lastSelectedIndex?: number;
-  quickNote?: string;
-  isPremium?: boolean;
-  trialStartTs?: number;
-}
-
 function getNoteTitle(note: Note, index: number) {
-  const title = note.content.split('\n')[0].trim();
-  return title || getMessage('emptyNote', [(index + 1).toString()]);
+  return getNoteTitleText(note, getMessage('emptyNote', [(index + 1).toString()]));
 }
 
 function getFilteredNotes() {
-  return notes.map((note, index) => ({ ...note, originalIndex: index }))
-    .filter(note => !isPremium || !searchQuery || note.content.toLowerCase().includes(searchQuery.toLowerCase()));
+  return getFilteredNoteModels(notes, isPremium, searchQuery);
 }
 
 function getNoteItemElement(index: number) {
@@ -155,18 +150,10 @@ function renderList() {
 
 function deleteNote(index: number) {
   if (!confirm(getMessage('confirmDelete'))) return;
-  
-  notes.splice(index, 1);
-  if (currentIndex === index) {
-    currentIndex = notes.length > 0 ? Math.max(0, index - 1) : -1;
-  } else if (currentIndex > index) {
-    currentIndex--;
-  }
 
-  if (notes.length === 0) {
-    notes = [{ content: '' }];
-    currentIndex = 0;
-  }
+  const nextState = deleteNoteAt(notes, currentIndex, index);
+  notes = nextState.notes;
+  currentIndex = nextState.currentIndex;
 
   saveNotes();
   renderList();
@@ -188,14 +175,15 @@ function selectNote(index: number, focusEditor = true) {
 
 function saveNotes() {
   updateStatus('statusSaving');
-  chrome.storage.local.set({ 
-    notes, 
+  void chromeLocalNotesStorage.save({
+    notes,
     lastSelectedIndex: currentIndex,
     isPremium,
-    trialStartTs
-  }, () => {
-    updateStatus(chrome.runtime.lastError ? 'statusSaveError' : 'statusSaved');
-  });
+    trialStartTs,
+  }).then(
+    () => updateStatus('statusSaved'),
+    () => updateStatus('statusSaveError'),
+  );
 }
 
 newNoteBtn.addEventListener('click', () => {
@@ -242,39 +230,34 @@ textArea.addEventListener('input', () => {
   }
 });
 
-translateUI();
+async function initialize() {
+  translateUI();
 
-chrome.storage.local.get(['notes', 'lastSelectedIndex', 'quickNote', 'isPremium', 'trialStartTs'], (res) => {
-  const result = res as StorageResult;
-  isPremium = result.isPremium || false;
-  trialStartTs = result.trialStartTs || Date.now();
-  
-  if (!result.trialStartTs) {
-    saveNotes(); // Persist trial start
-  }
+  try {
+    const result = await chromeLocalNotesStorage.load();
+    const hydratedState = hydrateNoteState(result);
+    notes = hydratedState.notes;
+    currentIndex = hydratedState.currentIndex;
+    isPremium = hydratedState.isPremium;
+    trialStartTs = hydratedState.trialStartTs;
 
-  updatePremiumUI();
+    updatePremiumUI();
+    renderList();
+    if (currentIndex >= 0) {
+      textArea.value = notes[currentIndex].content;
+      textArea.focus();
+    }
+    updateStatus('statusSaved');
 
-  if (result.notes) {
-    notes = result.notes;
-    currentIndex = result.lastSelectedIndex ?? (notes.length > 0 ? 0 : -1);
-  } else if (result.quickNote) {
-    // Migration from T001
-    notes = [{ content: result.quickNote }];
-    currentIndex = 0;
-    chrome.storage.local.remove('quickNote');
+    if (hydratedState.shouldPersistTrialStart) {
+      saveNotes();
+    }
+    if (hydratedState.shouldRemoveLegacyQuickNote) {
+      void chromeLocalNotesStorage.removeLegacyQuickNote().catch(() => updateStatus('statusSaveError'));
+    }
+  } catch {
+    updateStatus('statusSaveError');
   }
+}
 
-  if (notes.length === 0) {
-    // Start with one empty note if none exist
-    notes = [{ content: '' }];
-    currentIndex = 0;
-  }
-  
-  renderList();
-  if (currentIndex >= 0) {
-    textArea.value = notes[currentIndex].content;
-    textArea.focus();
-  }
-  updateStatus('statusSaved');
-});
+void initialize();
