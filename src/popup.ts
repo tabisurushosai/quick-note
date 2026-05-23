@@ -22,6 +22,7 @@ function getMessage(key: string, substitutions?: string | string[]) {
 }
 
 function translateUI() {
+  document.documentElement.lang = chrome.i18n.getUILanguage() || 'ja';
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (key) el.textContent = getMessage(key);
@@ -29,6 +30,10 @@ function translateUI() {
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
     if (key) (el as HTMLTextAreaElement).placeholder = getMessage(key);
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria-label');
+    if (key) el.setAttribute('aria-label', getMessage(key));
   });
 }
 
@@ -58,11 +63,48 @@ interface StorageResult {
   trialStartTs?: number;
 }
 
+function getNoteTitle(note: Note, index: number) {
+  const title = note.content.split('\n')[0].trim();
+  return title || getMessage('emptyNote', [(index + 1).toString()]);
+}
+
+function getFilteredNotes() {
+  return notes.map((note, index) => ({ ...note, originalIndex: index }))
+    .filter(note => !isPremium || !searchQuery || note.content.toLowerCase().includes(searchQuery.toLowerCase()));
+}
+
+function getNoteItemElement(index: number) {
+  return Array.from(noteList.children).find(el => (el as HTMLDivElement).dataset.index === index.toString()) as HTMLDivElement | undefined;
+}
+
+function focusNoteItem(index: number) {
+  getNoteItemElement(index)?.querySelector<HTMLButtonElement>('.note-select')?.focus();
+}
+
+function selectAdjacentNote(index: number, direction: -1 | 1) {
+  const filtered = getFilteredNotes();
+  const currentFilteredIndex = filtered.findIndex(note => note.originalIndex === index);
+  const nextNote = filtered[currentFilteredIndex + direction];
+  if (!nextNote) return;
+
+  selectNote(nextNote.originalIndex, false);
+  focusNoteItem(nextNote.originalIndex);
+}
+
+function handleNoteItemKeydown(event: KeyboardEvent, index: number) {
+  if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+    event.preventDefault();
+    selectAdjacentNote(index, -1);
+  } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+    event.preventDefault();
+    selectAdjacentNote(index, 1);
+  }
+}
+
 function renderList() {
   noteList.innerHTML = '';
   
-  const filtered = notes.map((note, index) => ({ ...note, originalIndex: index }))
-    .filter(note => !isPremium || !searchQuery || note.content.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filtered = getFilteredNotes();
 
   if (filtered.length === 0) {
     const emptyState = document.createElement('div');
@@ -74,27 +116,39 @@ function renderList() {
 
   filtered.forEach((note) => {
     const index = note.originalIndex;
+    const isActive = index === currentIndex;
+    const title = getNoteTitle(note, index);
     const div = document.createElement('div');
-    div.className = 'note-item' + (index === currentIndex ? ' active' : '');
+    div.className = 'note-item' + (isActive ? ' active' : '');
     div.dataset.index = index.toString();
+    div.setAttribute('role', 'listitem');
     
+    const selectBtn = document.createElement('button');
+    selectBtn.type = 'button';
+    selectBtn.className = 'note-select';
+    selectBtn.setAttribute('aria-current', isActive.toString());
+    selectBtn.setAttribute('aria-label', title);
+    selectBtn.addEventListener('click', () => selectNote(index));
+    selectBtn.addEventListener('keydown', (event) => handleNoteItemKeydown(event, index));
+
     const titleSpan = document.createElement('span');
     titleSpan.className = 'note-title';
-    const title = note.content.split('\n')[0].trim();
-    titleSpan.textContent = title || getMessage('emptyNote', [(index + 1).toString()]);
-    div.appendChild(titleSpan);
+    titleSpan.textContent = title;
+    selectBtn.appendChild(titleSpan);
+    div.appendChild(selectBtn);
 
     const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
     deleteBtn.className = 'delete-note';
     deleteBtn.textContent = '×';
     deleteBtn.title = getMessage('tooltipDelete');
+    deleteBtn.setAttribute('aria-label', getMessage('tooltipDelete'));
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteNote(index);
     });
     div.appendChild(deleteBtn);
 
-    div.addEventListener('click', () => selectNote(index));
     noteList.appendChild(div);
   });
 }
@@ -123,11 +177,13 @@ function deleteNote(index: number) {
   }
 }
 
-function selectNote(index: number) {
+function selectNote(index: number, focusEditor = true) {
   currentIndex = index;
   textArea.value = notes[index].content;
   renderList();
-  textArea.focus();
+  if (focusEditor) {
+    textArea.focus();
+  }
 }
 
 function saveNotes() {
@@ -176,9 +232,11 @@ textArea.addEventListener('input', () => {
     const activeItem = Array.from(noteList.children).find(el => (el as HTMLDivElement).dataset.index === currentIndex.toString()) as HTMLDivElement | undefined;
     if (activeItem) {
       const titleSpan = activeItem.querySelector('span');
+      const selectBtn = activeItem.querySelector<HTMLButtonElement>('.note-select');
       if (titleSpan) {
-        const title = textArea.value.split('\n')[0].trim();
-        titleSpan.textContent = title || getMessage('emptyNote', [(currentIndex + 1).toString()]);
+        const title = getNoteTitle(notes[currentIndex], currentIndex);
+        titleSpan.textContent = title;
+        selectBtn?.setAttribute('aria-label', title);
       }
     }
   }
