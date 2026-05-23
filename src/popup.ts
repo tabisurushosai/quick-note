@@ -13,6 +13,8 @@ let isPremium: boolean = false;
 let trialStartTs: number | null = null;
 let searchQuery: string = '';
 
+const FREE_NOTE_LIMIT = 10;
+
 const noteList = document.getElementById('note-list') as HTMLDivElement;
 const textArea = document.getElementById('note-content') as HTMLTextAreaElement;
 const newNoteBtn = document.getElementById('new-note') as HTMLButtonElement;
@@ -24,6 +26,10 @@ const appStatus = document.getElementById('app-status') as HTMLSpanElement;
 
 function getMessage(key: string, substitutions?: string | string[]) {
   return chrome.i18n.getMessage(key, substitutions) || key;
+}
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat(chrome.i18n.getUILanguage() || 'ja').format(value);
 }
 
 function translateUI() {
@@ -61,7 +67,7 @@ function updateStatus(messageKey: string) {
 }
 
 function getNoteTitle(note: Note, index: number) {
-  return getNoteTitleText(note, getMessage('emptyNote', [(index + 1).toString()]));
+  return getNoteTitleText(note, getMessage('emptyNote', [formatNumber(index + 1)]));
 }
 
 function getFilteredNotes() {
@@ -187,8 +193,8 @@ function saveNotes() {
 }
 
 newNoteBtn.addEventListener('click', () => {
-  if (!isPremium && notes.length >= 10) {
-    alert(getMessage('premiumLimit'));
+  if (!isPremium && notes.length >= FREE_NOTE_LIMIT) {
+    alert(getMessage('premiumLimit', [formatNumber(FREE_NOTE_LIMIT)]));
     return;
   }
   notes.push({ content: '' });
