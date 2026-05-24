@@ -107,8 +107,11 @@ function shouldShowInitialEmptyState(): boolean {
   return !searchQuery && isInitialEmptyNoteState(notes);
 }
 
-function updateOnboardingGuide(): void {
-  onboardingGuide.hidden = !shouldShowInitialEmptyState();
+function updateFirstRunGuidance(): void {
+  const shouldShow = shouldShowInitialEmptyState();
+  onboardingGuide.hidden = !shouldShow;
+  textArea.placeholder = getMessage(shouldShow ? 'firstNotePlaceholder' : 'placeholder');
+  textArea.setAttribute('aria-describedby', shouldShow ? 'onboarding-guide app-status' : 'app-status');
 }
 
 function getNoteItemElement(index: number): HTMLDivElement | undefined {
@@ -186,7 +189,7 @@ function renderList(): void {
     }
 
     noteList.appendChild(emptyState);
-    updateOnboardingGuide();
+    updateFirstRunGuidance();
     return;
   }
 
@@ -229,7 +232,7 @@ function renderList(): void {
 
     noteList.appendChild(div);
   });
-  updateOnboardingGuide();
+  updateFirstRunGuidance();
 }
 
 function deleteNote(index: number): void {
