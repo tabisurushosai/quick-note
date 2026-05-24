@@ -18,9 +18,11 @@ let searchQuery = '';
 
 const FREE_NOTE_LIMIT = 10;
 const DEFAULT_LOCALE = 'ja';
+const SUPPORTED_LOCALES = ['ja', 'en'] as const;
 
 type MessageSubstitutions = string | string[];
 type StatusState = 'saving' | 'saved' | 'error';
+type SupportedLocale = typeof SUPPORTED_LOCALES[number];
 
 function getRequiredElement<TElement extends HTMLElement>(id: string): TElement {
   const element = document.getElementById(id);
@@ -45,8 +47,11 @@ function getMessage(key: string, substitutions?: MessageSubstitutions): string {
   return chrome.i18n.getMessage(key, substitutions) || key;
 }
 
-function getUiLocale(): string {
-  return chrome.i18n.getUILanguage() || DEFAULT_LOCALE;
+function getUiLocale(): SupportedLocale {
+  const uiLanguage = chrome.i18n.getUILanguage().toLowerCase();
+  const matchedLocale = SUPPORTED_LOCALES.find(locale => uiLanguage === locale || uiLanguage.startsWith(`${locale}-`));
+
+  return matchedLocale ?? DEFAULT_LOCALE;
 }
 
 function formatNumber(value: number): string {
