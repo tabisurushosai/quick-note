@@ -212,6 +212,8 @@ function renderList(): void {
       const action = document.createElement('button');
       action.type = 'button';
       action.className = 'empty-state-action';
+      action.setAttribute('aria-controls', 'note-content');
+      action.setAttribute('aria-describedby', 'onboarding-guide');
       action.textContent = getMessage('emptyNoteAction');
       action.addEventListener('click', () => textArea.focus());
       emptyState.appendChild(action);
