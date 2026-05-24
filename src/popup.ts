@@ -18,6 +18,7 @@ let searchQuery = '';
 const FREE_NOTE_LIMIT = 10;
 
 type MessageSubstitutions = string | string[];
+type StatusState = 'loading' | 'saving' | 'saved' | 'error';
 
 function getRequiredElement<TElement extends HTMLElement>(id: string): TElement {
   const element = document.getElementById(id);
@@ -76,8 +77,9 @@ function updatePremiumUI(): void {
   }
 }
 
-function updateStatus(messageKey: string): void {
+function updateStatus(messageKey: string, state: StatusState): void {
   appStatus.textContent = getMessage(messageKey);
+  appStatus.dataset.state = state;
 }
 
 function getNoteTitle(note: Note, index: number): string {
@@ -226,15 +228,15 @@ function selectNote(index: number, focusEditor = true): void {
 }
 
 function saveNotes(): void {
-  updateStatus('statusSaving');
+  updateStatus('statusSaving', 'saving');
   void chromeLocalNotesStorage.save({
     notes,
     lastSelectedIndex: currentIndex,
     isPremium,
     trialStartTs,
   }).then(
-    () => updateStatus('statusSaved'),
-    () => updateStatus('statusSaveError'),
+    () => updateStatus('statusSaved', 'saved'),
+    () => updateStatus('statusSaveError', 'error'),
   );
 }
 
@@ -305,16 +307,16 @@ async function initialize(): Promise<void> {
       textArea.value = notes[currentIndex].content;
       textArea.focus();
     }
-    updateStatus('statusSaved');
+    updateStatus('statusSaved', 'saved');
 
     if (hydratedState.shouldPersistTrialStart) {
       saveNotes();
     }
     if (hydratedState.shouldRemoveLegacyQuickNote) {
-      void chromeLocalNotesStorage.removeLegacyQuickNote().catch(() => updateStatus('statusSaveError'));
+      void chromeLocalNotesStorage.removeLegacyQuickNote().catch(() => updateStatus('statusSaveError', 'error'));
     }
   } catch {
-    updateStatus('statusSaveError');
+    updateStatus('statusSaveError', 'error');
   }
 }
 
