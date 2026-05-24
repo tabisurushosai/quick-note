@@ -24,11 +24,13 @@ Mobile ports should implement `NotesStorageAdapter` with the same keys and value
 
 Use `NOTE_STORAGE_KEYS` and `LEGACY_QUICK_NOTE_KEY` from `src/storage/types.ts` when implementing a platform adapter so Chrome, iOS, and Android read the same persisted schema. The adapter boundary is intentionally small and platform-neutral:
 
-- `load()` returns `LoadedNoteStorageSnapshot`, including the legacy `quickNote` key when present.
-- `save()` writes `NoteStorageSaveInput` with the current notes, selected index, premium flag, and trial timestamp without reshaping the data.
-- `remove(keys)` accepts only `NoteStorageKey` values and deletes keys from the persisted note schema, such as the migrated `LEGACY_QUICK_NOTE_KEY`.
+- `loadSnapshot()` returns `NotesStorageSnapshot`, including the legacy `quickNote` key when present.
+- `saveSnapshot()` writes `NotesStoragePersistedState` with the current notes, selected index, premium flag, and trial timestamp without reshaping the data.
+- `removeKeys(keys)` accepts only `NotesStorageKey` values and deletes keys from the persisted note schema, such as the migrated `LEGACY_QUICK_NOTE_KEY`.
 
 For iOS or Android, keep native persistence APIs behind a module that implements `NotesStorageAdapter`. The rest of the app should pass plain note state through this interface rather than importing platform storage SDKs directly.
+
+Adapter implementations should translate only between the platform persistence API and these plain TypeScript shapes. They should not call UI APIs, add network sync, interpret premium rules, or mutate note content; pass the loaded `NotesStorageSnapshot` to `hydrateNoteState()` and keep note state transitions in `src/core`.
 
 ## Mobile adapter checklist
 
@@ -38,7 +40,8 @@ When creating an iOS or Android app shell:
 2. Implement one platform storage module that satisfies `NotesStorageAdapter`.
 3. Store exactly the keys listed in `NOTE_STORAGE_KEYS`; keep `quickNote` readable until legacy migration is no longer needed.
 4. Pass loaded snapshots to `hydrateNoteState()` before rendering UI state.
-5. Keep native APIs, localization SDKs, and UI framework code outside `src/core`.
+5. Call `saveSnapshot()` only with `NotesStoragePersistedState` so native storage keeps the existing value shape.
+6. Keep native APIs, localization SDKs, and UI framework code outside `src/core`.
 
 ## UI portability
 
