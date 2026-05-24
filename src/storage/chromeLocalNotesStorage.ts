@@ -1,10 +1,10 @@
 import {
   LEGACY_QUICK_NOTE_KEY,
   NOTE_STORAGE_KEYS,
+  type LoadedNoteStorageSnapshot,
+  type NoteStorageKey,
+  type NoteStorageSaveInput,
   type NotesStorageAdapter,
-  type PersistedNoteState,
-  type StoredNoteState,
-  type StoredNoteStateKey,
 } from './types';
 
 function getChromeStorageError(): Error | null {
@@ -26,8 +26,8 @@ function runChromeStorageOperation<T>(operation: (complete: (value: T) => void) 
   });
 }
 
-function pickStoredNoteState(result: Partial<StoredNoteState>): StoredNoteState {
-  const stored: StoredNoteState = {};
+function pickLoadedNoteStorageSnapshot(result: Partial<LoadedNoteStorageSnapshot>): LoadedNoteStorageSnapshot {
+  const stored: LoadedNoteStorageSnapshot = {};
 
   if ('notes' in result) stored.notes = result.notes;
   if ('lastSelectedIndex' in result) stored.lastSelectedIndex = result.lastSelectedIndex;
@@ -39,19 +39,19 @@ function pickStoredNoteState(result: Partial<StoredNoteState>): StoredNoteState 
 }
 
 export const chromeLocalNotesStorage: NotesStorageAdapter = {
-  load(): Promise<StoredNoteState> {
+  load(): Promise<LoadedNoteStorageSnapshot> {
     return runChromeStorageOperation((complete) => {
-      chrome.storage.local.get([...NOTE_STORAGE_KEYS], (result) => complete(pickStoredNoteState(result)));
+      chrome.storage.local.get([...NOTE_STORAGE_KEYS], (result) => complete(pickLoadedNoteStorageSnapshot(result)));
     });
   },
 
-  save(state: PersistedNoteState): Promise<void> {
+  save(state: NoteStorageSaveInput): Promise<void> {
     return runChromeStorageOperation((complete) => {
       chrome.storage.local.set(state, () => complete(undefined));
     });
   },
 
-  remove(keys: readonly StoredNoteStateKey[]): Promise<void> {
+  remove(keys: readonly NoteStorageKey[]): Promise<void> {
     return runChromeStorageOperation((complete) => {
       chrome.storage.local.remove([...keys], () => complete(undefined));
     });

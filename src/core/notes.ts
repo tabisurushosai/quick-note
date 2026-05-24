@@ -17,7 +17,7 @@ export interface NoteStateHydrationInput {
   lastSelectedIndex?: number;
   quickNote?: string;
   isPremium?: boolean;
-  trialStartTs?: number;
+  trialStartTs?: number | null;
 }
 
 export interface HydratedNoteState extends AppState {

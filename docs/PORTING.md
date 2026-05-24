@@ -22,13 +22,23 @@ Keep the existing local data shape unchanged:
 
 Mobile ports should implement `NotesStorageAdapter` with the same keys and value shapes, then reuse `src/core` hydration and note operations. Do not introduce remote sync, external APIs, or a different persisted format without a migration plan.
 
-Use `NOTE_STORAGE_KEYS` and `LEGACY_QUICK_NOTE_KEY` from `src/storage/types.ts` when implementing a platform adapter so Chrome, iOS, and Android read the same persisted schema. The adapter boundary is intentionally small:
+Use `NOTE_STORAGE_KEYS` and `LEGACY_QUICK_NOTE_KEY` from `src/storage/types.ts` when implementing a platform adapter so Chrome, iOS, and Android read the same persisted schema. The adapter boundary is intentionally small and platform-neutral:
 
-- `load()` returns the stored snapshot, including the legacy `quickNote` key when present.
-- `save()` writes the current notes, selected index, premium flag, and trial timestamp without reshaping the data.
-- `remove(keys)` deletes only keys from the persisted note schema, such as the migrated `LEGACY_QUICK_NOTE_KEY`.
+- `load()` returns `LoadedNoteStorageSnapshot`, including the legacy `quickNote` key when present.
+- `save()` writes `NoteStorageSaveInput` with the current notes, selected index, premium flag, and trial timestamp without reshaping the data.
+- `remove(keys)` accepts only `NoteStorageKey` values and deletes keys from the persisted note schema, such as the migrated `LEGACY_QUICK_NOTE_KEY`.
 
 For iOS or Android, keep native persistence APIs behind a module that implements `NotesStorageAdapter`. The rest of the app should pass plain note state through this interface rather than importing platform storage SDKs directly.
+
+## Mobile adapter checklist
+
+When creating an iOS or Android app shell:
+
+1. Reuse `src/core` as-is for note creation, deletion, filtering, title generation, and hydration.
+2. Implement one platform storage module that satisfies `NotesStorageAdapter`.
+3. Store exactly the keys listed in `NOTE_STORAGE_KEYS`; keep `quickNote` readable until legacy migration is no longer needed.
+4. Pass loaded snapshots to `hydrateNoteState()` before rendering UI state.
+5. Keep native APIs, localization SDKs, and UI framework code outside `src/core`.
 
 ## UI portability
 
