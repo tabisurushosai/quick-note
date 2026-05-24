@@ -12,7 +12,7 @@ export interface AppState extends NoteState {
   trialStartTs: number;
 }
 
-export interface StoredNoteState {
+export interface NoteStateHydrationInput {
   notes?: Note[];
   lastSelectedIndex?: number;
   quickNote?: string;
@@ -71,7 +71,7 @@ export function deleteNoteAt(notes: Note[], currentIndex: number, index: number)
   return { notes: nextNotes, currentIndex: nextIndex };
 }
 
-export function hydrateNoteState(stored: StoredNoteState, now = Date.now()): HydratedNoteState {
+export function hydrateNoteState(stored: NoteStateHydrationInput, now = Date.now()): HydratedNoteState {
   const isPremium = stored.isPremium || false;
   const trialStartTs = stored.trialStartTs || now;
   const shouldPersistTrialStart = !stored.trialStartTs;

@@ -5,6 +5,7 @@ Quick Note keeps the extension-specific code at the edge so the note logic can b
 ## Boundaries
 
 - `src/core` contains pure note logic only. Do not import or reference `chrome.*`, DOM APIs, network APIs, or platform storage APIs here.
+- `npm run build` runs `tsc -p tsconfig.core.json` before the extension build. That core-only config intentionally has no Chrome or DOM ambient types, so portability regressions fail at typecheck time.
 - `src/storage/types.ts` defines the storage adapter interface shared by UI code and platform adapters.
 - `src/storage/chromeLocalNotesStorage.ts` is the Chrome extension adapter. It is the only storage module that should call `chrome.storage.local`.
 - `src/popup.ts` is the current Chrome popup UI boundary. Platform APIs such as `chrome.i18n` should stay at this boundary or move into a platform-specific UI adapter.
@@ -20,6 +21,12 @@ Keep the existing local data shape unchanged:
 - `trialStartTs`: trial start timestamp
 
 Mobile ports should implement `NotesStorageAdapter` with the same keys and value shapes, then reuse `src/core` hydration and note operations. Do not introduce remote sync, external APIs, or a different persisted format without a migration plan.
+
+Use `NOTE_STORAGE_KEYS` and `LEGACY_QUICK_NOTE_KEY` from `src/storage/types.ts` when implementing a platform adapter so Chrome, iOS, and Android read the same persisted schema. The adapter boundary is intentionally small:
+
+- `load()` returns the stored snapshot, including the legacy `quickNote` key when present.
+- `save()` writes the current notes, selected index, premium flag, and trial timestamp without reshaping the data.
+- `removeLegacyQuickNote()` deletes only the migrated legacy single-note key.
 
 ## UI portability
 
