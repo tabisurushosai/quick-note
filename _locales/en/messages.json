@@ -16,6 +16,7 @@
   "emptyNoteListDescription": { "message": "Type in the note area below to save your first note on this device automatically." },
   "emptyNoteAction": { "message": "Focus note area" },
   "onboardingGuide": { "message": "Start by typing in the note area below. It saves on this device automatically." },
+  "firstNotePlaceholder": { "message": "Type your first note here. It saves automatically on this device." },
   "emptySearchResults": { "message": "No matching notes found." },
   "statusLoading": { "message": "Loading notes..." },
   "statusSaving": { "message": "Saving notes..." },

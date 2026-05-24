@@ -16,6 +16,7 @@
   "emptyNoteListDescription": { "message": "下のメモ欄に入力すると、この端末に自動保存されます。" },
   "emptyNoteAction": { "message": "メモ欄へ移動" },
   "onboardingGuide": { "message": "まずは下のメモ欄に入力してください。内容はこの端末に自動保存されます。" },
+  "firstNotePlaceholder": { "message": "ここに1件目のメモを書き始めてください。自動保存されます。" },
   "emptySearchResults": { "message": "一致するメモはありません。" },
   "statusLoading": { "message": "メモを読み込み中..." },
   "statusSaving": { "message": "メモを保存中..." },
