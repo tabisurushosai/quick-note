@@ -306,20 +306,20 @@
 <body>
   <div id="app">
     <div class="controls">
-      <button id="new-note" type="button" data-i18n="btnNew">New note</button>
-      <span id="premium-badge" hidden data-i18n="premiumBadge">Premium</span>
-      <button id="upgrade-btn" type="button" hidden data-i18n="btnUpgrade">Upgrade to Premium</button>
+      <button id="new-note" type="button" data-i18n="btnNew">新しいメモ</button>
+      <span id="premium-badge" hidden data-i18n="premiumBadge">プレミアム</span>
+      <button id="upgrade-btn" type="button" hidden data-i18n="btnUpgrade">プレミアムにアップグレード</button>
     </div>
-    <p id="onboarding-guide" class="onboarding-guide" hidden data-i18n="onboardingGuide">Type in the note area below. It saves automatically.</p>
+    <p id="onboarding-guide" class="onboarding-guide" hidden data-i18n="onboardingGuide">まずは下のメモ欄に入力してください。内容はこの端末に自動保存されます。</p>
     <div id="search-container" hidden>
-      <label class="visually-hidden" for="search-input" data-i18n="searchLabel">Search notes</label>
-      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search notes" autocomplete="off" aria-controls="note-list">
+      <label class="visually-hidden" for="search-input" data-i18n="searchLabel">メモを検索</label>
+      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="メモを検索" autocomplete="off" aria-controls="note-list">
     </div>
-    <div id="note-list" role="list" data-i18n-aria-label="noteListLabel" aria-label="Notes list"></div>
-    <label class="visually-hidden" for="note-content" data-i18n="noteContentLabel">Note content</label>
-    <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="Select a note or create a new one" aria-describedby="app-status"></textarea>
+    <div id="note-list" role="list" data-i18n-aria-label="noteListLabel" aria-label="メモ一覧"></div>
+    <label class="visually-hidden" for="note-content" data-i18n="noteContentLabel">メモ本文</label>
+    <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="メモを選択するか、新しいメモを作成してください。" aria-describedby="app-status"></textarea>
     <div class="status-row" role="status" aria-live="polite">
-      <span id="app-status" data-state="loading" data-i18n="statusLoading">Loading notes...</span>
+      <span id="app-status" data-state="loading" data-i18n="statusLoading">メモを読み込み中...</span>
     </div>
   </div>
   <script type="module" src="/src/popup.ts"></script>
