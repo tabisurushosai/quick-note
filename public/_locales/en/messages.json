@@ -5,7 +5,7 @@
   "searchLabel": { "message": "Search notes" },
   "noteListLabel": { "message": "Notes list" },
   "noteListLabelWithCount": { "message": "Visible notes: $COUNT$", "placeholders": { "COUNT": { "content": "$1" } } },
-  "noteListHelp": { "message": "In the notes list, use the up and down arrow keys to move between notes. Press Home to move to the first note and End to move to the last note." },
+  "noteListHelp": { "message": "In the notes list, press Tab to move between the select and delete buttons. Use the up and down arrow keys to move between notes. Press Home to move to the first note and End to move to the last note." },
   "noteContentLabel": { "message": "Note content" },
   "placeholder": { "message": "Select a note or create a new one." },
   "emptyNote": { "message": "Untitled note $ID$", "placeholders": { "ID": { "content": "$1" } } },
