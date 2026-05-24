@@ -171,7 +171,15 @@ function renderList(): void {
     emptyState.setAttribute('role', 'listitem');
 
     if (searchQuery) {
-      emptyState.textContent = getMessage('emptySearchResults');
+      const title = document.createElement('p');
+      title.className = 'empty-state-title';
+      title.textContent = getMessage('emptySearchResults');
+      emptyState.appendChild(title);
+
+      const description = document.createElement('p');
+      description.className = 'empty-state-description';
+      description.textContent = getMessage('emptySearchResultsDescription');
+      emptyState.appendChild(description);
     } else {
       const title = document.createElement('p');
       title.className = 'empty-state-title';
