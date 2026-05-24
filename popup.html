@@ -31,7 +31,7 @@
     body {
       width: 360px;
       margin: 0;
-      padding: 16px;
+      padding: 18px;
       background: var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -41,13 +41,30 @@
 
     #app {
       display: grid;
-      gap: 14px;
+      gap: 12px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 32px;
+    }
+
+    #app-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
     }
 
     .controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -91,6 +108,7 @@
     }
 
     #new-note {
+      flex: 1 1 150px;
       border-color: var(--primary);
       background: var(--primary);
       color: #ffffff;
@@ -102,7 +120,10 @@
     }
 
     #upgrade-btn {
+      flex: 1 1 100%;
       padding: 0 12px;
+      background: var(--surface);
+      color: var(--primary-strong);
     }
 
     #premium-badge {
@@ -118,7 +139,7 @@
     #search-input {
       width: 100%;
       min-height: var(--control-height);
-      padding: 10px 12px;
+      padding: 10px 14px;
       border: 1px solid var(--border);
       border-radius: 10px;
       background: var(--surface);
@@ -134,7 +155,7 @@
     #note-list {
       display: grid;
       gap: 8px;
-      max-height: 156px;
+      max-height: 160px;
       overflow-y: auto;
       padding: 10px;
       border: 1px solid var(--border);
@@ -163,6 +184,7 @@
     .note-item.active {
       border-color: var(--primary);
       background: var(--primary-bg);
+      box-shadow: inset 3px 0 0 var(--primary);
     }
 
     .note-select {
@@ -183,6 +205,7 @@
       overflow: hidden;
       color: var(--text);
       font-weight: 600;
+      letter-spacing: -0.005em;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -210,7 +233,7 @@
     .empty-state {
       display: grid;
       gap: 6px;
-      padding: 18px 14px;
+      padding: 20px 16px;
       border: 1px dashed var(--border-strong);
       border-radius: 12px;
       background: var(--surface-muted);
@@ -252,14 +275,14 @@
     #note-content {
       width: 100%;
       height: 232px;
-      padding: 12px;
+      padding: 14px;
       resize: vertical;
       border: 1px solid var(--border);
       border-radius: 14px;
       background: var(--surface);
       color: var(--text);
       font-size: 15px;
-      line-height: 1.6;
+      line-height: 1.65;
       box-shadow: var(--shadow-subtle);
     }
 
@@ -267,7 +290,8 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      min-height: 30px;
+      flex: 0 0 auto;
+      min-height: 28px;
       color: var(--muted);
       font-size: 12px;
     }
@@ -283,6 +307,8 @@
       background: var(--surface);
       color: var(--muted);
       font-weight: 650;
+      line-height: 1.2;
+      white-space: nowrap;
     }
 
     #app-status::before {
@@ -315,7 +341,12 @@
 </head>
 <body>
   <main id="app" aria-labelledby="app-title">
-    <h1 id="app-title" class="visually-hidden" data-i18n="extName">さっとメモ</h1>
+    <header class="app-header">
+      <h1 id="app-title" data-i18n="extName">さっとメモ</h1>
+      <div class="status-row" role="status" aria-live="polite">
+        <span id="app-status" data-state="loading" data-i18n="statusLoading">メモを読み込んでいます...</span>
+      </div>
+    </header>
     <div class="controls">
       <button id="new-note" type="button" data-i18n="btnNew">メモを追加</button>
       <span id="premium-badge" hidden data-i18n="premiumBadge">プレミアム</span>
@@ -330,9 +361,6 @@
     <div id="note-list" role="list" data-i18n-aria-label="noteListLabel" aria-label="メモ一覧" aria-describedby="note-list-help"></div>
     <label class="visually-hidden" for="note-content" data-i18n="noteContentLabel">メモ本文</label>
     <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="メモを選択するか、新しいメモを作成してください。" aria-describedby="app-status"></textarea>
-    <div class="status-row" role="status" aria-live="polite">
-      <span id="app-status" data-state="loading" data-i18n="statusLoading">メモを読み込んでいます...</span>
-    </div>
   </main>
   <script type="module" src="/src/popup.ts"></script>
 </body>
