@@ -20,7 +20,7 @@
       --danger: #b42318;
       --danger-bg: #fff0ee;
       --focus: #0b57d0;
-      --control-height: 44px;
+      --control-height: 48px;
       --shadow-subtle: 0 8px 24px rgba(23, 32, 42, 0.08);
     }
 
@@ -99,12 +99,15 @@
 
     button:focus-visible,
     input:focus-visible,
-    textarea:focus-visible,
-    .note-select:focus-visible,
-    .note-item:focus-visible {
+    textarea:focus-visible {
       outline: 3px solid var(--focus);
       outline-offset: 2px;
       box-shadow: 0 0 0 4px rgba(11, 87, 208, 0.18);
+    }
+
+    .note-select:focus-visible,
+    .delete-note:focus-visible {
+      outline-offset: -4px;
     }
 
     #new-note {
@@ -187,6 +190,15 @@
       box-shadow: inset 3px 0 0 var(--primary);
     }
 
+    .note-item:focus-within {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.22);
+    }
+
+    .note-item.active:focus-within {
+      box-shadow: inset 3px 0 0 var(--primary), 0 0 0 3px rgba(11, 87, 208, 0.22);
+    }
+
     .note-select {
       display: flex;
       align-items: center;
@@ -222,6 +234,7 @@
       background: transparent;
       color: var(--muted);
       font-size: 18px;
+      font-weight: 700;
       line-height: 1;
     }
 
@@ -343,21 +356,21 @@
   <main id="app" aria-labelledby="app-title">
     <header class="app-header">
       <h1 id="app-title" data-i18n="extName">さっとメモ</h1>
-      <div class="status-row" role="status" aria-live="polite">
+      <div class="status-row" role="status" aria-live="polite" aria-atomic="true">
         <span id="app-status" data-state="loading" data-i18n="statusLoading">メモを読み込んでいます...</span>
       </div>
     </header>
     <div class="controls">
-      <button id="new-note" type="button" data-i18n="btnNew">メモを追加</button>
+      <button id="new-note" type="button" data-i18n="btnNew" aria-controls="note-list note-content">メモを追加</button>
       <span id="premium-badge" hidden data-i18n="premiumBadge">プレミアム</span>
       <button id="upgrade-btn" type="button" hidden data-i18n="btnUpgrade">プレミアムにアップグレード</button>
     </div>
     <p id="onboarding-guide" class="onboarding-guide" hidden data-i18n="onboardingGuide">一言でも入力すると、最初のメモとして自動保存されます。</p>
     <div id="search-container" hidden>
       <label class="visually-hidden" for="search-input" data-i18n="searchLabel">メモを検索</label>
-      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="メモを検索" autocomplete="off" aria-controls="note-list">
+      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="メモを検索" autocomplete="off" enterkeyhint="search" aria-controls="note-list">
     </div>
-    <p id="note-list-help" class="visually-hidden" data-i18n="noteListHelp">メモ一覧では、上下矢印キーで前後のメモへ移動できます。Homeキーで先頭、Endキーで末尾へ移動できます。</p>
+    <p id="note-list-help" class="visually-hidden" data-i18n="noteListHelp">メモ一覧では、Tabキーで選択と削除のボタンへ移動できます。上下矢印キーで前後のメモへ移動し、Homeキーで先頭、Endキーで末尾へ移動できます。</p>
     <div id="note-list" role="list" data-i18n-aria-label="noteListLabel" aria-label="メモ一覧" aria-describedby="note-list-help"></div>
     <label class="visually-hidden" for="note-content" data-i18n="noteContentLabel">メモ本文</label>
     <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="メモを選択するか、新しいメモを作成してください。" aria-describedby="app-status"></textarea>

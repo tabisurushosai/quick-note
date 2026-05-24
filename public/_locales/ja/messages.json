@@ -5,7 +5,7 @@
   "searchLabel": { "message": "メモを検索" },
   "noteListLabel": { "message": "メモ一覧" },
   "noteListLabelWithCount": { "message": "表示中のメモ: $COUNT$件", "placeholders": { "COUNT": { "content": "$1" } } },
-  "noteListHelp": { "message": "メモ一覧では、上下矢印キーで前後のメモへ移動できます。Homeキーで先頭、Endキーで末尾へ移動できます。" },
+  "noteListHelp": { "message": "メモ一覧では、Tabキーで選択と削除のボタンへ移動できます。上下矢印キーで前後のメモへ移動し、Homeキーで先頭、Endキーで末尾へ移動できます。" },
   "noteContentLabel": { "message": "メモ本文" },
   "placeholder": { "message": "メモを選択するか、新しいメモを作成してください。" },
   "emptyNote": { "message": "無題のメモ $ID$", "placeholders": { "ID": { "content": "$1" } } },

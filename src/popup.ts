@@ -222,7 +222,7 @@ function renderList(): void {
     return;
   }
 
-  filtered.forEach((note) => {
+  filtered.forEach((note, visibleIndex) => {
     const index = note.originalIndex;
     const isActive = index === currentIndex;
     const title = formatNoteTitle(note, index);
@@ -230,6 +230,11 @@ function renderList(): void {
     div.className = 'note-item' + (isActive ? ' active' : '');
     div.dataset.index = index.toString();
     div.setAttribute('role', 'listitem');
+    div.setAttribute('aria-posinset', (visibleIndex + 1).toString());
+    div.setAttribute('aria-setsize', filtered.length.toString());
+    if (isActive) {
+      div.setAttribute('aria-current', 'true');
+    }
 
     const selectBtn = document.createElement('button');
     selectBtn.type = 'button';
@@ -237,6 +242,7 @@ function renderList(): void {
     if (isActive) {
       selectBtn.setAttribute('aria-current', 'true');
     }
+    selectBtn.setAttribute('aria-keyshortcuts', 'ArrowUp ArrowDown Home End');
     selectBtn.setAttribute('aria-label', getSelectNoteAriaLabel(title, isActive));
     selectBtn.addEventListener('click', () => selectNote(index));
     selectBtn.addEventListener('keydown', (event) => handleNoteItemKeydown(event, index));
@@ -252,6 +258,7 @@ function renderList(): void {
     deleteBtn.className = 'delete-note';
     deleteBtn.textContent = '×';
     deleteBtn.title = getMessage('tooltipDelete');
+    deleteBtn.setAttribute('aria-keyshortcuts', 'ArrowUp ArrowDown Home End');
     deleteBtn.setAttribute('aria-label', getDeleteNoteAriaLabel(title));
     deleteBtn.addEventListener('click', (event) => {
       event.stopPropagation();
