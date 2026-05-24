@@ -37,23 +37,24 @@ export function isBlankNote(note: Note): boolean {
   return note.content.trim().length === 0;
 }
 
-export function isInitialEmptyNoteState(notes: Note[]): boolean {
-  return notes.length === 1 && isBlankNote(notes[0]);
+export function isInitialEmptyNoteState(notes: readonly Note[]): boolean {
+  const [note] = notes;
+  return notes.length === 1 && note !== undefined && isBlankNote(note);
 }
 
 export function getNoteTitle(note: Note, fallbackTitle: string): string {
-  const title = note.content.split('\n')[0].trim();
+  const title = (note.content.split('\n')[0] ?? '').trim();
   return title || fallbackTitle;
 }
 
-export function getFilteredNotes(notes: Note[], isPremium: boolean, searchQuery: string): FilteredNote[] {
+export function getFilteredNotes(notes: readonly Note[], isPremium: boolean, searchQuery: string): FilteredNote[] {
   const normalizedQuery = searchQuery.toLowerCase();
 
   return notes.map((note, index) => ({ ...note, originalIndex: index }))
     .filter(note => !isPremium || !normalizedQuery || note.content.toLowerCase().includes(normalizedQuery));
 }
 
-export function deleteNoteAt(notes: Note[], currentIndex: number, index: number): NoteState {
+export function deleteNoteAt(notes: readonly Note[], currentIndex: number, index: number): NoteState {
   let nextNotes = notes.filter((_, noteIndex) => noteIndex !== index);
   let nextIndex = currentIndex;
 
