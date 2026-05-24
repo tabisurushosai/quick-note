@@ -24,6 +24,7 @@ type MessageSubstitutions = string | string[];
 type StatusState = 'saving' | 'saved' | 'error';
 type SupportedLocale = typeof SUPPORTED_LOCALES[number];
 type HTMLElementConstructor<TElement extends HTMLElement> = new () => TElement;
+type CountMessageKey = 'noteListLabelWithCount' | 'noteListStatus' | 'searchResultsStatus';
 
 function getRequiredElement<TElement extends HTMLElement>(
   id: string,
@@ -70,6 +71,10 @@ function getUiLocale(): SupportedLocale {
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat(getUiLocale(), { maximumFractionDigits: 0 }).format(value);
+}
+
+function getCountMessageKey(messageKey: CountMessageKey, count: number): CountMessageKey | `${CountMessageKey}One` {
+  return getUiLocale() === 'en' && count === 1 ? `${messageKey}One` : messageKey;
 }
 
 function translateUI(): void {
@@ -137,10 +142,11 @@ function getVisibleNotes(): FilteredNote[] {
 }
 
 function updateNoteListAccessibility(visibleCount: number): void {
-  noteList.setAttribute('aria-label', getMessage('noteListLabelWithCount', [formatNumber(visibleCount)]));
+  const formattedCount = formatNumber(visibleCount);
+  noteList.setAttribute('aria-label', getMessage(getCountMessageKey('noteListLabelWithCount', visibleCount), [formattedCount]));
   noteListStatus.textContent = getMessage(
-    searchQuery ? 'searchResultsStatus' : 'noteListStatus',
-    [formatNumber(visibleCount)],
+    getCountMessageKey(searchQuery ? 'searchResultsStatus' : 'noteListStatus', visibleCount),
+    [formattedCount],
   );
 }
 
