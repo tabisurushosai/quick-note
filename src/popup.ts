@@ -46,6 +46,7 @@ const upgradeBtn = getRequiredElement('upgrade-btn', HTMLButtonElement);
 const premiumBadge = getRequiredElement('premium-badge', HTMLSpanElement);
 const appStatus = getRequiredElement('app-status', HTMLSpanElement);
 const onboardingGuide = getRequiredElement('onboarding-guide', HTMLParagraphElement);
+const noteListStatus = getRequiredElement('note-list-status', HTMLParagraphElement);
 
 function getNoteAt(index: number): Note {
   const note = notes[index];
@@ -118,6 +119,12 @@ function getDeleteNoteAriaLabel(title: string): string {
   return getMessage('deleteNoteAriaLabel', [title]);
 }
 
+function getCurrentNoteTitle(): string | null {
+  if (currentIndex < 0) return null;
+
+  return formatNoteTitle(getNoteAt(currentIndex), currentIndex);
+}
+
 function createEmptyStateText(className: 'empty-state-title' | 'empty-state-description', messageKey: string): HTMLParagraphElement {
   const paragraph = document.createElement('p');
   paragraph.className = className;
@@ -131,6 +138,15 @@ function getVisibleNotes(): FilteredNote[] {
 
 function updateNoteListAccessibility(visibleCount: number): void {
   noteList.setAttribute('aria-label', getMessage('noteListLabelWithCount', [formatNumber(visibleCount)]));
+  noteListStatus.textContent = getMessage(
+    searchQuery ? 'searchResultsStatus' : 'noteListStatus',
+    [formatNumber(visibleCount)],
+  );
+}
+
+function updateEditorAccessibility(): void {
+  const title = getCurrentNoteTitle();
+  textArea.setAttribute('aria-label', title ? getMessage('noteContentAriaLabel', [title]) : getMessage('noteContentLabel'));
 }
 
 function shouldShowInitialEmptyState(): boolean {
@@ -142,6 +158,7 @@ function updateFirstRunGuidance(): void {
   onboardingGuide.hidden = !shouldShow;
   textArea.placeholder = getMessage(shouldShow ? 'firstNotePlaceholder' : 'placeholder');
   textArea.setAttribute('aria-describedby', shouldShow ? 'onboarding-guide app-status' : 'app-status');
+  updateEditorAccessibility();
 }
 
 function getNoteItemElement(index: number): HTMLDivElement | undefined {
@@ -257,6 +274,7 @@ function renderList(): void {
     if (isActive) {
       selectBtn.setAttribute('aria-current', 'true');
     }
+    selectBtn.setAttribute('aria-controls', 'note-content');
     selectBtn.setAttribute('aria-keyshortcuts', 'ArrowUp ArrowDown Home End');
     selectBtn.setAttribute('aria-label', getSelectNoteAriaLabel(title, isActive));
     selectBtn.addEventListener('click', () => selectNote(index));
@@ -273,6 +291,7 @@ function renderList(): void {
     deleteBtn.className = 'delete-note';
     deleteBtn.textContent = '×';
     deleteBtn.title = getMessage('tooltipDelete');
+    deleteBtn.setAttribute('aria-controls', 'note-list note-content');
     deleteBtn.setAttribute('aria-keyshortcuts', 'ArrowUp ArrowDown Home End');
     deleteBtn.setAttribute('aria-label', getDeleteNoteAriaLabel(title));
     deleteBtn.addEventListener('click', (event) => {
@@ -372,6 +391,8 @@ textArea.addEventListener('input', () => {
         const title = formatNoteTitle(currentNote, currentIndex);
         titleSpan.textContent = title;
         selectBtn?.setAttribute('aria-label', getSelectNoteAriaLabel(title, true));
+        activeItem.querySelector<HTMLButtonElement>('.delete-note')?.setAttribute('aria-label', getDeleteNoteAriaLabel(title));
+        updateEditorAccessibility();
       }
     }
   }
