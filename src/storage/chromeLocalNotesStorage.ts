@@ -1,6 +1,6 @@
 import type { NotesStorageAdapter, PersistedNoteState, StoredNoteState } from './types';
 
-const STORAGE_KEYS = ['notes', 'lastSelectedIndex', 'quickNote', 'isPremium', 'trialStartTs'];
+const STORAGE_KEYS: (keyof StoredNoteState)[] = ['notes', 'lastSelectedIndex', 'quickNote', 'isPremium', 'trialStartTs'];
 
 function getChromeStorageError(): Error | null {
   const lastError = chrome.runtime.lastError;
@@ -8,8 +8,8 @@ function getChromeStorageError(): Error | null {
 }
 
 export const chromeLocalNotesStorage: NotesStorageAdapter = {
-  load() {
-    return new Promise((resolve, reject) => {
+  load(): Promise<StoredNoteState> {
+    return new Promise<StoredNoteState>((resolve, reject) => {
       chrome.storage.local.get(STORAGE_KEYS, (result) => {
         const error = getChromeStorageError();
         if (error) {
@@ -22,8 +22,8 @@ export const chromeLocalNotesStorage: NotesStorageAdapter = {
     });
   },
 
-  save(state: PersistedNoteState) {
-    return new Promise((resolve, reject) => {
+  save(state: PersistedNoteState): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       chrome.storage.local.set(state, () => {
         const error = getChromeStorageError();
         if (error) {
@@ -36,8 +36,8 @@ export const chromeLocalNotesStorage: NotesStorageAdapter = {
     });
   },
 
-  removeLegacyQuickNote() {
-    return new Promise((resolve, reject) => {
+  removeLegacyQuickNote(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       chrome.storage.local.remove('quickNote', () => {
         const error = getChromeStorageError();
         if (error) {
