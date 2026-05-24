@@ -1,6 +1,16 @@
-import type { Note, StoredNoteState } from '../core/notes';
+import type { Note, NoteStateHydrationInput } from '../core/notes';
 
-export type { StoredNoteState };
+export type StoredNoteState = NoteStateHydrationInput;
+export type StoredNoteStateKey = keyof StoredNoteState;
+
+export const LEGACY_QUICK_NOTE_KEY = 'quickNote' satisfies StoredNoteStateKey;
+export const NOTE_STORAGE_KEYS = [
+  'notes',
+  'lastSelectedIndex',
+  LEGACY_QUICK_NOTE_KEY,
+  'isPremium',
+  'trialStartTs',
+] as const satisfies readonly StoredNoteStateKey[];
 
 export interface PersistedNoteState {
   notes: Note[];
