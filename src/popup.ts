@@ -23,25 +23,38 @@ const SUPPORTED_LOCALES = ['ja', 'en'] as const;
 type MessageSubstitutions = string | string[];
 type StatusState = 'saving' | 'saved' | 'error';
 type SupportedLocale = typeof SUPPORTED_LOCALES[number];
+type HTMLElementConstructor<TElement extends HTMLElement> = new () => TElement;
 
-function getRequiredElement<TElement extends HTMLElement>(id: string): TElement {
+function getRequiredElement<TElement extends HTMLElement>(
+  id: string,
+  elementConstructor: HTMLElementConstructor<TElement>,
+): TElement {
   const element = document.getElementById(id);
-  if (!element) {
+  if (!(element instanceof elementConstructor)) {
     throw new Error(`Missing required element: ${id}`);
   }
 
-  return element as TElement;
+  return element;
 }
 
-const noteList = getRequiredElement<HTMLDivElement>('note-list');
-const textArea = getRequiredElement<HTMLTextAreaElement>('note-content');
-const newNoteBtn = getRequiredElement<HTMLButtonElement>('new-note');
-const searchInput = getRequiredElement<HTMLInputElement>('search-input');
-const searchContainer = getRequiredElement<HTMLDivElement>('search-container');
-const upgradeBtn = getRequiredElement<HTMLButtonElement>('upgrade-btn');
-const premiumBadge = getRequiredElement<HTMLSpanElement>('premium-badge');
-const appStatus = getRequiredElement<HTMLSpanElement>('app-status');
-const onboardingGuide = getRequiredElement<HTMLParagraphElement>('onboarding-guide');
+const noteList = getRequiredElement('note-list', HTMLDivElement);
+const textArea = getRequiredElement('note-content', HTMLTextAreaElement);
+const newNoteBtn = getRequiredElement('new-note', HTMLButtonElement);
+const searchInput = getRequiredElement('search-input', HTMLInputElement);
+const searchContainer = getRequiredElement('search-container', HTMLDivElement);
+const upgradeBtn = getRequiredElement('upgrade-btn', HTMLButtonElement);
+const premiumBadge = getRequiredElement('premium-badge', HTMLSpanElement);
+const appStatus = getRequiredElement('app-status', HTMLSpanElement);
+const onboardingGuide = getRequiredElement('onboarding-guide', HTMLParagraphElement);
+
+function getNoteAt(index: number): Note {
+  const note = notes[index];
+  if (!note) {
+    throw new Error(`Missing note at index: ${index}`);
+  }
+
+  return note;
+}
 
 function getMessage(key: string, substitutions?: MessageSubstitutions): string {
   return chrome.i18n.getMessage(key, substitutions) || key;
@@ -61,15 +74,15 @@ function formatNumber(value: number): string {
 function translateUI(): void {
   document.documentElement.lang = getUiLocale();
   document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((element) => {
-    const key = element.dataset.i18n;
+    const key = element.dataset['i18n'];
     if (key) element.textContent = getMessage(key);
   });
   document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-i18n-placeholder]').forEach((element) => {
-    const key = element.dataset.i18nPlaceholder;
+    const key = element.dataset['i18nPlaceholder'];
     if (key) element.placeholder = getMessage(key);
   });
   document.querySelectorAll<HTMLElement>('[data-i18n-aria-label]').forEach((element) => {
-    const key = element.dataset.i18nAriaLabel;
+    const key = element.dataset['i18nAriaLabel'];
     if (key) element.setAttribute('aria-label', getMessage(key));
   });
 }
@@ -90,7 +103,7 @@ function updatePremiumUI(): void {
 
 function updateStatus(messageKey: string, state: StatusState): void {
   appStatus.textContent = getMessage(messageKey);
-  appStatus.dataset.state = state;
+  appStatus.dataset['state'] = state;
 }
 
 function formatNoteTitle(note: Note, index: number): string {
@@ -134,7 +147,7 @@ function updateFirstRunGuidance(): void {
 function getNoteItemElement(index: number): HTMLDivElement | undefined {
   return Array.from(noteList.children).find(
     (element): element is HTMLDivElement =>
-      element instanceof HTMLDivElement && element.dataset.index === index.toString(),
+      element instanceof HTMLDivElement && element.dataset['index'] === index.toString(),
   );
 }
 
@@ -230,7 +243,7 @@ function renderList(): void {
     const title = formatNoteTitle(note, index);
     const div = document.createElement('div');
     div.className = 'note-item' + (isActive ? ' active' : '');
-    div.dataset.index = index.toString();
+    div.dataset['index'] = index.toString();
     div.setAttribute('role', 'listitem');
     div.setAttribute('aria-posinset', (visibleIndex + 1).toString());
     div.setAttribute('aria-setsize', filtered.length.toString());
@@ -284,7 +297,7 @@ function deleteNote(index: number): void {
   saveNotes();
   renderList();
   if (currentIndex >= 0) {
-    textArea.value = notes[currentIndex]!.content;
+    textArea.value = getNoteAt(currentIndex).content;
   } else {
     textArea.value = '';
   }
@@ -293,7 +306,7 @@ function deleteNote(index: number): void {
 
 function selectNote(index: number, focusEditor = true): void {
   currentIndex = index;
-  textArea.value = notes[index]!.content;
+  textArea.value = getNoteAt(index).content;
   renderList();
   if (focusEditor) {
     textArea.focus();
@@ -342,7 +355,8 @@ upgradeBtn.addEventListener('click', () => {
 textArea.addEventListener('input', () => {
   if (currentIndex >= 0) {
     const wasInitialEmptyState = shouldShowInitialEmptyState();
-    notes[currentIndex]!.content = textArea.value;
+    const currentNote = getNoteAt(currentIndex);
+    currentNote.content = textArea.value;
     saveNotes();
     const isInitialEmptyState = shouldShowInitialEmptyState();
     if (wasInitialEmptyState || isInitialEmptyState) {
@@ -352,10 +366,10 @@ textArea.addEventListener('input', () => {
     // Update the list title as user types
     const activeItem = getNoteItemElement(currentIndex);
     if (activeItem) {
-      const titleSpan = activeItem.querySelector('span');
+      const titleSpan = activeItem.querySelector<HTMLSpanElement>('.note-title');
       const selectBtn = activeItem.querySelector<HTMLButtonElement>('.note-select');
       if (titleSpan) {
-        const title = formatNoteTitle(notes[currentIndex]!, currentIndex);
+        const title = formatNoteTitle(currentNote, currentIndex);
         titleSpan.textContent = title;
         selectBtn?.setAttribute('aria-label', getSelectNoteAriaLabel(title, true));
       }
@@ -377,7 +391,7 @@ async function initialize(): Promise<void> {
     updatePremiumUI();
     renderList();
     if (currentIndex >= 0) {
-      textArea.value = notes[currentIndex]!.content;
+      textArea.value = getNoteAt(currentIndex).content;
       textArea.focus();
     }
     updateStatus('statusSaved', 'saved');
