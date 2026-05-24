@@ -1,25 +1,19 @@
-import type { Note } from '../core/notes';
+import type { Note, NoteStateHydrationInput } from '../core/notes';
 
-export interface LoadedNoteStorageSnapshot {
-  notes?: Note[];
-  lastSelectedIndex?: number;
-  quickNote?: string;
-  isPremium?: boolean;
-  trialStartTs?: number | null;
-}
+export type NotesStorageSnapshot = NoteStateHydrationInput;
 
-export type NoteStorageKey = keyof LoadedNoteStorageSnapshot;
+export type NotesStorageKey = keyof NotesStorageSnapshot;
 
-export const LEGACY_QUICK_NOTE_KEY = 'quickNote' satisfies NoteStorageKey;
+export const LEGACY_QUICK_NOTE_KEY = 'quickNote' satisfies NotesStorageKey;
 export const NOTE_STORAGE_KEYS = [
   'notes',
   'lastSelectedIndex',
   LEGACY_QUICK_NOTE_KEY,
   'isPremium',
   'trialStartTs',
-] as const satisfies readonly NoteStorageKey[];
+] as const satisfies readonly NotesStorageKey[];
 
-export interface NoteStorageSaveInput {
+export interface NotesStoragePersistedState {
   notes: Note[];
   lastSelectedIndex: number;
   isPremium: boolean;
@@ -27,7 +21,7 @@ export interface NoteStorageSaveInput {
 }
 
 export interface NotesStorageAdapter {
-  load(): Promise<LoadedNoteStorageSnapshot>;
-  save(state: NoteStorageSaveInput): Promise<void>;
-  remove(keys: readonly NoteStorageKey[]): Promise<void>;
+  loadSnapshot(): Promise<NotesStorageSnapshot>;
+  saveSnapshot(state: NotesStoragePersistedState): Promise<void>;
+  removeKeys(keys: readonly NotesStorageKey[]): Promise<void>;
 }

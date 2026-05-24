@@ -334,7 +334,7 @@ function selectNote(index: number, focusEditor = true): void {
 
 function saveNotes(): void {
   updateStatus('statusSaving', 'saving');
-  void chromeLocalNotesStorage.save({
+  void chromeLocalNotesStorage.saveSnapshot({
     notes,
     lastSelectedIndex: currentIndex,
     isPremium,
@@ -402,7 +402,7 @@ async function initialize(): Promise<void> {
   translateUI();
 
   try {
-    const result = await chromeLocalNotesStorage.load();
+    const result = await chromeLocalNotesStorage.loadSnapshot();
     const hydratedState = hydrateNoteState(result);
     notes = hydratedState.notes;
     currentIndex = hydratedState.currentIndex;
@@ -421,7 +421,7 @@ async function initialize(): Promise<void> {
       saveNotes();
     }
     if (hydratedState.shouldRemoveLegacyQuickNote) {
-      void chromeLocalNotesStorage.remove([LEGACY_QUICK_NOTE_KEY]).catch(() => updateStatus('statusSaveError', 'error'));
+      void chromeLocalNotesStorage.removeKeys([LEGACY_QUICK_NOTE_KEY]).catch(() => updateStatus('statusSaveError', 'error'));
     }
   } catch {
     updateStatus('statusSaveError', 'error');
