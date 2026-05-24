@@ -8,6 +8,7 @@ import {
   type Note,
 } from './core/notes';
 import { chromeLocalNotesStorage } from './storage/chromeLocalNotesStorage';
+import { LEGACY_QUICK_NOTE_KEY } from './storage/types';
 
 let notes: Note[] = [];
 let currentIndex = -1;
@@ -378,7 +379,7 @@ async function initialize(): Promise<void> {
       saveNotes();
     }
     if (hydratedState.shouldRemoveLegacyQuickNote) {
-      void chromeLocalNotesStorage.removeLegacyQuickNote().catch(() => updateStatus('statusSaveError', 'error'));
+      void chromeLocalNotesStorage.remove([LEGACY_QUICK_NOTE_KEY]).catch(() => updateStatus('statusSaveError', 'error'));
     }
   } catch {
     updateStatus('statusSaveError', 'error');

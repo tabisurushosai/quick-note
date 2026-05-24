@@ -26,7 +26,9 @@ Use `NOTE_STORAGE_KEYS` and `LEGACY_QUICK_NOTE_KEY` from `src/storage/types.ts` 
 
 - `load()` returns the stored snapshot, including the legacy `quickNote` key when present.
 - `save()` writes the current notes, selected index, premium flag, and trial timestamp without reshaping the data.
-- `removeLegacyQuickNote()` deletes only the migrated legacy single-note key.
+- `remove(keys)` deletes only keys from the persisted note schema, such as the migrated `LEGACY_QUICK_NOTE_KEY`.
+
+For iOS or Android, keep native persistence APIs behind a module that implements `NotesStorageAdapter`. The rest of the app should pass plain note state through this interface rather than importing platform storage SDKs directly.
 
 ## UI portability
 

@@ -50,9 +50,9 @@ export const chromeLocalNotesStorage: NotesStorageAdapter = {
     });
   },
 
-  removeLegacyQuickNote(): Promise<void> {
+  remove(keys): Promise<void> {
     return runChromeStorageOperation((complete) => {
-      chrome.storage.local.remove(LEGACY_QUICK_NOTE_KEY, () => complete(undefined));
+      chrome.storage.local.remove([...keys], () => complete(undefined));
     });
   },
 };

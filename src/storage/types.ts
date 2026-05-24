@@ -22,5 +22,5 @@ export interface PersistedNoteState {
 export interface NotesStorageAdapter {
   load(): Promise<StoredNoteState>;
   save(state: PersistedNoteState): Promise<void>;
-  removeLegacyQuickNote(): Promise<void>;
+  remove(keys: readonly StoredNoteStateKey[]): Promise<void>;
 }
