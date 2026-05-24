@@ -16,6 +16,7 @@ let trialStartTs: number | null = null;
 let searchQuery = '';
 
 const FREE_NOTE_LIMIT = 10;
+const DEFAULT_LOCALE = 'ja';
 
 type MessageSubstitutions = string | string[];
 type StatusState = 'loading' | 'saving' | 'saved' | 'error';
@@ -43,12 +44,16 @@ function getMessage(key: string, substitutions?: MessageSubstitutions): string {
   return chrome.i18n.getMessage(key, substitutions) || key;
 }
 
+function getUiLocale(): string {
+  return chrome.i18n.getUILanguage() || DEFAULT_LOCALE;
+}
+
 function formatNumber(value: number): string {
-  return new Intl.NumberFormat(chrome.i18n.getUILanguage() || 'ja').format(value);
+  return new Intl.NumberFormat(getUiLocale(), { maximumFractionDigits: 0 }).format(value);
 }
 
 function translateUI(): void {
-  document.documentElement.lang = chrome.i18n.getUILanguage() || 'ja';
+  document.documentElement.lang = getUiLocale();
   document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((element) => {
     const key = element.dataset.i18n;
     if (key) element.textContent = getMessage(key);
