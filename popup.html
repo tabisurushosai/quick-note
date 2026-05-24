@@ -66,6 +66,7 @@
     }
 
     button {
+      min-width: 44px;
       min-height: 44px;
       padding: 0 12px;
       border: 1px solid var(--border);
@@ -80,7 +81,7 @@
     textarea:focus-visible,
     .note-select:focus-visible,
     .note-item:focus-visible {
-      outline: 2px solid var(--focus);
+      outline: 3px solid var(--focus);
       outline-offset: 2px;
       box-shadow: 0 0 0 4px rgba(11, 87, 208, 0.18);
     }
@@ -312,11 +313,11 @@
     <p id="onboarding-guide" class="onboarding-guide" hidden data-i18n="onboardingGuide">Type in the note area below. It saves automatically.</p>
     <div id="search-container" hidden>
       <label class="visually-hidden" for="search-input" data-i18n="searchLabel">Search notes</label>
-      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search notes" autocomplete="off">
+      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search notes" autocomplete="off" aria-controls="note-list">
     </div>
     <div id="note-list" role="list" data-i18n-aria-label="noteListLabel" aria-label="Notes list"></div>
     <label class="visually-hidden" for="note-content" data-i18n="noteContentLabel">Note content</label>
-    <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="Select a note or create a new one"></textarea>
+    <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="Select a note or create a new one" aria-describedby="app-status"></textarea>
     <div class="status-row" role="status" aria-live="polite">
       <span id="app-status" data-state="loading" data-i18n="statusLoading">Loading notes...</span>
     </div>
