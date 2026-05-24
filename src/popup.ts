@@ -103,6 +103,10 @@ function getVisibleNotes(): FilteredNote[] {
   return getFilteredNotes(notes, isPremium, searchQuery);
 }
 
+function updateNoteListAccessibility(visibleCount: number): void {
+  noteList.setAttribute('aria-label', getMessage('noteListLabelWithCount', [formatNumber(visibleCount)]));
+}
+
 function shouldShowInitialEmptyState(): boolean {
   return !searchQuery && isInitialEmptyNoteState(notes);
 }
@@ -123,6 +127,19 @@ function getNoteItemElement(index: number): HTMLDivElement | undefined {
 
 function focusNoteItem(index: number): void {
   getNoteItemElement(index)?.querySelector<HTMLButtonElement>('.note-select')?.focus();
+}
+
+function focusAfterDelete(): void {
+  const filtered = getVisibleNotes();
+  const selectedVisibleNote = filtered.find(note => note.originalIndex === currentIndex);
+  const nextFocusIndex = selectedVisibleNote?.originalIndex ?? filtered[0]?.originalIndex;
+
+  if (nextFocusIndex !== undefined) {
+    focusNoteItem(nextFocusIndex);
+    return;
+  }
+
+  textArea.focus();
 }
 
 function selectAdjacentNote(index: number, direction: -1 | 1): void {
@@ -164,8 +181,10 @@ function renderList(): void {
   noteList.innerHTML = '';
   
   const filtered = getVisibleNotes();
+  const showsInitialEmptyState = shouldShowInitialEmptyState();
+  updateNoteListAccessibility(showsInitialEmptyState ? 0 : filtered.length);
 
-  if (filtered.length === 0 || shouldShowInitialEmptyState()) {
+  if (filtered.length === 0 || showsInitialEmptyState) {
     const emptyState = document.createElement('div');
     emptyState.className = 'empty-state';
     emptyState.setAttribute('role', 'listitem');
@@ -239,6 +258,7 @@ function renderList(): void {
       event.stopPropagation();
       deleteNote(index);
     });
+    deleteBtn.addEventListener('keydown', (event) => handleNoteItemKeydown(event, index));
     div.appendChild(deleteBtn);
 
     noteList.appendChild(div);
@@ -260,6 +280,7 @@ function deleteNote(index: number): void {
   } else {
     textArea.value = '';
   }
+  focusAfterDelete();
 }
 
 function selectNote(index: number, focusEditor = true): void {
