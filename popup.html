@@ -8,8 +8,9 @@
       color-scheme: light;
       --bg: #f7f8fb;
       --surface: #ffffff;
-      --surface-muted: #f1f4f8;
-      --border: #d8dee8;
+      --surface-muted: #f4f7fb;
+      --surface-quiet: #f8fafc;
+      --border: #cfd8e6;
       --border-strong: #9aa8b8;
       --text: #17202a;
       --muted: #4b5563;
@@ -22,7 +23,7 @@
       --danger-bg: #fff0ee;
       --focus: #0b57d0;
       --control-height: 48px;
-      --shadow-subtle: 0 8px 24px rgba(23, 32, 42, 0.08);
+      --shadow-subtle: 0 8px 22px rgba(23, 32, 42, 0.07);
     }
 
     * {
@@ -30,9 +31,9 @@
     }
 
     body {
-      width: 360px;
+      width: 372px;
       margin: 0;
-      padding: 18px;
+      padding: 16px;
       background: var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -42,21 +43,26 @@
 
     #app {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .app-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
       min-height: 32px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-subtle);
     }
 
     #app-title {
       margin: 0;
       color: var(--text);
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 750;
       letter-spacing: -0.01em;
       line-height: 1.25;
@@ -65,8 +71,9 @@
     .controls {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
+      padding: 2px;
     }
 
     button,
@@ -98,6 +105,11 @@
       font-weight: 600;
     }
 
+    button:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-muted);
+    }
+
     button:focus-visible,
     input:focus-visible,
     textarea:focus-visible {
@@ -120,6 +132,7 @@
     }
 
     #new-note:hover {
+      border-color: var(--primary-strong);
       background: var(--primary-strong);
     }
 
@@ -127,6 +140,13 @@
       flex: 1 1 100%;
       padding: 0 12px;
       background: var(--surface);
+      color: var(--primary-strong);
+    }
+
+    #upgrade-btn:hover,
+    .empty-state-action:hover {
+      border-color: var(--primary);
+      background: var(--primary-bg);
       color: var(--primary-strong);
     }
 
@@ -143,7 +163,7 @@
     #search-input {
       width: 100%;
       min-height: var(--control-height);
-      padding: 10px 14px;
+      padding: 11px 14px;
       border: 1px solid var(--border);
       border-radius: 10px;
       background: var(--surface);
@@ -158,10 +178,10 @@
 
     #note-list {
       display: grid;
-      gap: 8px;
-      max-height: 160px;
+      gap: 7px;
+      max-height: 172px;
       overflow-y: auto;
-      padding: 10px;
+      padding: 9px;
       border: 1px solid var(--border);
       border-radius: 14px;
       background: var(--surface);
@@ -177,12 +197,12 @@
       padding: 0;
       border: 1px solid transparent;
       border-radius: 10px;
-      background: var(--surface);
+      background: var(--surface-quiet);
       overflow: hidden;
     }
 
     .note-item:hover {
-      background: var(--surface-muted);
+      background: #eef4ff;
     }
 
     .note-item.active {
@@ -210,6 +230,7 @@
       border: none;
       background: transparent;
       color: var(--text);
+      line-height: 1.35;
       text-align: left;
     }
 
@@ -246,11 +267,11 @@
 
     .empty-state {
       display: grid;
-      gap: 6px;
-      padding: 20px 16px;
+      gap: 8px;
+      padding: 22px 18px;
       border: 1px dashed var(--border-strong);
       border-radius: 12px;
-      background: var(--surface-muted);
+      background: var(--surface-quiet);
       color: var(--muted);
       text-align: center;
     }
@@ -280,6 +301,7 @@
       margin: 0;
       padding: 10px 12px;
       border: 1px solid #c9daf8;
+      border-left-width: 4px;
       border-radius: 10px;
       background: #eef5ff;
       color: var(--primary-strong);
@@ -288,8 +310,8 @@
 
     #note-content {
       width: 100%;
-      height: 232px;
-      padding: 14px;
+      height: 238px;
+      padding: 16px;
       resize: vertical;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -305,7 +327,7 @@
       align-items: center;
       justify-content: flex-end;
       flex: 0 0 auto;
-      min-height: 28px;
+      min-height: 30px;
       color: var(--muted);
       font-size: 12px;
     }
@@ -314,8 +336,8 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      min-height: 28px;
-      padding: 5px 10px;
+      min-height: 30px;
+      padding: 6px 10px;
       border: 1px solid var(--border);
       border-radius: 999px;
       background: var(--surface);
