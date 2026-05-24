@@ -33,6 +33,14 @@ export function createEmptyNote(): Note {
   return { content: '' };
 }
 
+export function isBlankNote(note: Note): boolean {
+  return note.content.trim().length === 0;
+}
+
+export function isInitialEmptyNoteState(notes: Note[]): boolean {
+  return notes.length === 1 && isBlankNote(notes[0]);
+}
+
 export function getNoteTitle(note: Note, fallbackTitle: string): string {
   const title = note.content.split('\n')[0].trim();
   return title || fallbackTitle;

@@ -201,6 +201,37 @@
       text-align: center;
     }
 
+    .empty-state-title,
+    .empty-state-description {
+      margin: 0;
+    }
+
+    .empty-state-title {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .empty-state-description {
+      margin-top: 4px;
+    }
+
+    .empty-state-action {
+      margin-top: 10px;
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 650;
+    }
+
+    .onboarding-guide {
+      margin: 0;
+      padding: 8px 10px;
+      border: 1px solid #c9daf8;
+      border-radius: 8px;
+      background: #eef5ff;
+      color: var(--primary-strong);
+      font-size: 13px;
+    }
+
     #note-content {
       width: 100%;
       height: 220px;
@@ -229,6 +260,7 @@
       <span id="premium-badge" hidden data-i18n="premiumBadge">Premium</span>
       <button id="upgrade-btn" type="button" hidden data-i18n="btnUpgrade">Upgrade to Premium</button>
     </div>
+    <p id="onboarding-guide" class="onboarding-guide" hidden data-i18n="onboardingGuide">Type in the note area below. It saves automatically.</p>
     <div id="search-container" hidden>
       <label class="visually-hidden" for="search-input" data-i18n="searchLabel">Search notes</label>
       <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search notes" autocomplete="off">
