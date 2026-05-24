@@ -105,6 +105,13 @@ function getDeleteNoteAriaLabel(title: string): string {
   return getMessage('deleteNoteAriaLabel', [title]);
 }
 
+function createEmptyStateText(className: 'empty-state-title' | 'empty-state-description', messageKey: string): HTMLParagraphElement {
+  const paragraph = document.createElement('p');
+  paragraph.className = className;
+  paragraph.textContent = getMessage(messageKey);
+  return paragraph;
+}
+
 function getVisibleNotes(): FilteredNote[] {
   return getFilteredNotes(notes, isPremium, searchQuery);
 }
@@ -185,7 +192,7 @@ function handleNoteItemKeydown(event: KeyboardEvent, index: number): void {
 
 function renderList(): void {
   noteList.innerHTML = '';
-  
+
   const filtered = getVisibleNotes();
   const showsInitialEmptyState = shouldShowInitialEmptyState();
   updateNoteListAccessibility(showsInitialEmptyState ? 0 : filtered.length);
@@ -196,25 +203,11 @@ function renderList(): void {
     emptyState.setAttribute('role', 'listitem');
 
     if (searchQuery) {
-      const title = document.createElement('p');
-      title.className = 'empty-state-title';
-      title.textContent = getMessage('emptySearchResults');
-      emptyState.appendChild(title);
-
-      const description = document.createElement('p');
-      description.className = 'empty-state-description';
-      description.textContent = getMessage('emptySearchResultsDescription');
-      emptyState.appendChild(description);
+      emptyState.appendChild(createEmptyStateText('empty-state-title', 'emptySearchResults'));
+      emptyState.appendChild(createEmptyStateText('empty-state-description', 'emptySearchResultsDescription'));
     } else {
-      const title = document.createElement('p');
-      title.className = 'empty-state-title';
-      title.textContent = getMessage('emptyNoteList');
-      emptyState.appendChild(title);
-
-      const description = document.createElement('p');
-      description.className = 'empty-state-description';
-      description.textContent = getMessage('emptyNoteListDescription');
-      emptyState.appendChild(description);
+      emptyState.appendChild(createEmptyStateText('empty-state-title', 'emptyNoteList'));
+      emptyState.appendChild(createEmptyStateText('empty-state-description', 'emptyNoteListDescription'));
 
       const action = document.createElement('button');
       action.type = 'button';
@@ -237,7 +230,7 @@ function renderList(): void {
     div.className = 'note-item' + (isActive ? ' active' : '');
     div.dataset.index = index.toString();
     div.setAttribute('role', 'listitem');
-    
+
     const selectBtn = document.createElement('button');
     selectBtn.type = 'button';
     selectBtn.className = 'note-select';
@@ -282,7 +275,7 @@ function deleteNote(index: number): void {
   saveNotes();
   renderList();
   if (currentIndex >= 0) {
-    textArea.value = notes[currentIndex].content;
+    textArea.value = notes[currentIndex]!.content;
   } else {
     textArea.value = '';
   }
@@ -291,7 +284,7 @@ function deleteNote(index: number): void {
 
 function selectNote(index: number, focusEditor = true): void {
   currentIndex = index;
-  textArea.value = notes[index].content;
+  textArea.value = notes[index]!.content;
   renderList();
   if (focusEditor) {
     textArea.focus();
@@ -340,7 +333,7 @@ upgradeBtn.addEventListener('click', () => {
 textArea.addEventListener('input', () => {
   if (currentIndex >= 0) {
     const wasInitialEmptyState = shouldShowInitialEmptyState();
-    notes[currentIndex].content = textArea.value;
+    notes[currentIndex]!.content = textArea.value;
     saveNotes();
     const isInitialEmptyState = shouldShowInitialEmptyState();
     if (wasInitialEmptyState || isInitialEmptyState) {
@@ -353,7 +346,7 @@ textArea.addEventListener('input', () => {
       const titleSpan = activeItem.querySelector('span');
       const selectBtn = activeItem.querySelector<HTMLButtonElement>('.note-select');
       if (titleSpan) {
-        const title = formatNoteTitle(notes[currentIndex], currentIndex);
+        const title = formatNoteTitle(notes[currentIndex]!, currentIndex);
         titleSpan.textContent = title;
         selectBtn?.setAttribute('aria-label', getSelectNoteAriaLabel(title, true));
       }
@@ -375,7 +368,7 @@ async function initialize(): Promise<void> {
     updatePremiumUI();
     renderList();
     if (currentIndex >= 0) {
-      textArea.value = notes[currentIndex].content;
+      textArea.value = notes[currentIndex]!.content;
       textArea.focus();
     }
     updateStatus('statusSaved', 'saved');

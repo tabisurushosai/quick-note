@@ -4,6 +4,7 @@ import {
   type NotesStorageAdapter,
   type PersistedNoteState,
   type StoredNoteState,
+  type StoredNoteStateKey,
 } from './types';
 
 function getChromeStorageError(): Error | null {
@@ -50,7 +51,7 @@ export const chromeLocalNotesStorage: NotesStorageAdapter = {
     });
   },
 
-  remove(keys): Promise<void> {
+  remove(keys: readonly StoredNoteStateKey[]): Promise<void> {
     return runChromeStorageOperation((complete) => {
       chrome.storage.local.remove([...keys], () => complete(undefined));
     });
