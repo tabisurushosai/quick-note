@@ -1,7 +1,7 @@
 import {
   deleteNoteAt,
-  getFilteredNotes as getFilteredNoteModels,
-  getNoteTitle as getNoteTitleText,
+  getFilteredNotes,
+  getNoteTitle,
   hydrateNoteState,
   isInitialEmptyNoteState,
   type FilteredNote,
@@ -19,7 +19,7 @@ const FREE_NOTE_LIMIT = 10;
 const DEFAULT_LOCALE = 'ja';
 
 type MessageSubstitutions = string | string[];
-type StatusState = 'loading' | 'saving' | 'saved' | 'error';
+type StatusState = 'saving' | 'saved' | 'error';
 
 function getRequiredElement<TElement extends HTMLElement>(id: string): TElement {
   const element = document.getElementById(id);
@@ -87,8 +87,8 @@ function updateStatus(messageKey: string, state: StatusState): void {
   appStatus.dataset.state = state;
 }
 
-function getNoteTitle(note: Note, index: number): string {
-  return getNoteTitleText(note, getMessage('emptyNote', [formatNumber(index + 1)]));
+function formatNoteTitle(note: Note, index: number): string {
+  return getNoteTitle(note, getMessage('emptyNote', [formatNumber(index + 1)]));
 }
 
 function getSelectNoteAriaLabel(title: string, isActive: boolean): string {
@@ -99,8 +99,8 @@ function getDeleteNoteAriaLabel(title: string): string {
   return getMessage('deleteNoteAriaLabel', [title]);
 }
 
-function getFilteredNotes(): FilteredNote[] {
-  return getFilteredNoteModels(notes, isPremium, searchQuery);
+function getVisibleNotes(): FilteredNote[] {
+  return getFilteredNotes(notes, isPremium, searchQuery);
 }
 
 function shouldShowInitialEmptyState(): boolean {
@@ -115,7 +115,10 @@ function updateFirstRunGuidance(): void {
 }
 
 function getNoteItemElement(index: number): HTMLDivElement | undefined {
-  return Array.from(noteList.children).find(el => (el as HTMLDivElement).dataset.index === index.toString()) as HTMLDivElement | undefined;
+  return Array.from(noteList.children).find(
+    (element): element is HTMLDivElement =>
+      element instanceof HTMLDivElement && element.dataset.index === index.toString(),
+  );
 }
 
 function focusNoteItem(index: number): void {
@@ -123,7 +126,7 @@ function focusNoteItem(index: number): void {
 }
 
 function selectAdjacentNote(index: number, direction: -1 | 1): void {
-  const filtered = getFilteredNotes();
+  const filtered = getVisibleNotes();
   const currentFilteredIndex = filtered.findIndex(note => note.originalIndex === index);
   const nextNote = filtered[currentFilteredIndex + direction];
   if (!nextNote) return;
@@ -133,7 +136,7 @@ function selectAdjacentNote(index: number, direction: -1 | 1): void {
 }
 
 function selectFilteredBoundaryNote(boundary: 'first' | 'last'): void {
-  const filtered = getFilteredNotes();
+  const filtered = getVisibleNotes();
   const nextNote = boundary === 'first' ? filtered[0] : filtered[filtered.length - 1];
   if (!nextNote) return;
 
@@ -160,7 +163,7 @@ function handleNoteItemKeydown(event: KeyboardEvent, index: number): void {
 function renderList(): void {
   noteList.innerHTML = '';
   
-  const filtered = getFilteredNotes();
+  const filtered = getVisibleNotes();
 
   if (filtered.length === 0 || shouldShowInitialEmptyState()) {
     const emptyState = document.createElement('div');
@@ -196,7 +199,7 @@ function renderList(): void {
   filtered.forEach((note) => {
     const index = note.originalIndex;
     const isActive = index === currentIndex;
-    const title = getNoteTitle(note, index);
+    const title = formatNoteTitle(note, index);
     const div = document.createElement('div');
     div.className = 'note-item' + (isActive ? ' active' : '');
     div.dataset.index = index.toString();
@@ -315,7 +318,7 @@ textArea.addEventListener('input', () => {
       const titleSpan = activeItem.querySelector('span');
       const selectBtn = activeItem.querySelector<HTMLButtonElement>('.note-select');
       if (titleSpan) {
-        const title = getNoteTitle(notes[currentIndex], currentIndex);
+        const title = formatNoteTitle(notes[currentIndex], currentIndex);
         titleSpan.textContent = title;
         selectBtn?.setAttribute('aria-label', getSelectNoteAriaLabel(title, true));
       }
