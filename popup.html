@@ -14,7 +14,10 @@
       --muted: #4b5563;
       --primary: #1f5fbf;
       --primary-strong: #17478f;
+      --success: #0f6b3c;
+      --success-bg: #e9f7ef;
       --danger: #b42318;
+      --danger-bg: #fff0ee;
       --focus: #0b57d0;
     }
 
@@ -117,6 +120,12 @@
       color: var(--text);
     }
 
+    #search-input::placeholder,
+    #note-content::placeholder {
+      color: #5f6b7a;
+      opacity: 1;
+    }
+
     #note-list {
       display: grid;
       gap: 6px;
@@ -189,7 +198,7 @@
 
     .delete-note:hover {
       color: var(--danger);
-      background: #fff0ee;
+      background: var(--danger-bg);
     }
 
     .empty-state {
@@ -247,9 +256,49 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      min-height: 18px;
+      min-height: 30px;
       color: var(--muted);
       font-size: 12px;
+    }
+
+    #app-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    #app-status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    #app-status[data-state="loading"],
+    #app-status[data-state="saving"] {
+      border-color: #c9daf8;
+      background: #eef5ff;
+      color: var(--primary-strong);
+    }
+
+    #app-status[data-state="saved"] {
+      border-color: #b8dec5;
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    #app-status[data-state="error"] {
+      border-color: #f1b8b2;
+      background: var(--danger-bg);
+      color: var(--danger);
     }
   </style>
 </head>
@@ -269,7 +318,7 @@
     <label class="visually-hidden" for="note-content" data-i18n="noteContentLabel">Note content</label>
     <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="Select a note or create a new one"></textarea>
     <div class="status-row" role="status" aria-live="polite">
-      <span id="app-status" data-i18n="statusLoading">Loading notes...</span>
+      <span id="app-status" data-state="loading" data-i18n="statusLoading">Loading notes...</span>
     </div>
   </div>
   <script type="module" src="/src/popup.ts"></script>
