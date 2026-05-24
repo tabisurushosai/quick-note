@@ -7,11 +7,6 @@ export interface NoteState {
   currentIndex: number;
 }
 
-export interface AppState extends NoteState {
-  isPremium: boolean;
-  trialStartTs: number;
-}
-
 export interface NoteStateHydrationInput {
   notes?: Note[];
   lastSelectedIndex?: number;
@@ -20,7 +15,9 @@ export interface NoteStateHydrationInput {
   trialStartTs?: number | null;
 }
 
-export interface HydratedNoteState extends AppState {
+export interface HydratedNoteState extends NoteState {
+  isPremium: boolean;
+  trialStartTs: number;
   shouldPersistTrialStart: boolean;
   shouldRemoveLegacyQuickNote: boolean;
 }
