@@ -3,6 +3,7 @@ import {
   getFilteredNotes as getFilteredNoteModels,
   getNoteTitle as getNoteTitleText,
   hydrateNoteState,
+  isInitialEmptyNoteState,
   type Note,
 } from './core/notes';
 import { chromeLocalNotesStorage } from './storage/chromeLocalNotesStorage';
@@ -23,6 +24,7 @@ const searchContainer = document.getElementById('search-container') as HTMLDivEl
 const upgradeBtn = document.getElementById('upgrade-btn') as HTMLButtonElement;
 const premiumBadge = document.getElementById('premium-badge') as HTMLSpanElement;
 const appStatus = document.getElementById('app-status') as HTMLSpanElement;
+const onboardingGuide = document.getElementById('onboarding-guide') as HTMLParagraphElement;
 
 function getMessage(key: string, substitutions?: string | string[]) {
   return chrome.i18n.getMessage(key, substitutions) || key;
@@ -74,6 +76,14 @@ function getFilteredNotes() {
   return getFilteredNoteModels(notes, isPremium, searchQuery);
 }
 
+function shouldShowInitialEmptyState() {
+  return !searchQuery && isInitialEmptyNoteState(notes);
+}
+
+function updateOnboardingGuide() {
+  onboardingGuide.hidden = !shouldShowInitialEmptyState();
+}
+
 function getNoteItemElement(index: number) {
   return Array.from(noteList.children).find(el => (el as HTMLDivElement).dataset.index === index.toString()) as HTMLDivElement | undefined;
 }
@@ -107,11 +117,34 @@ function renderList() {
   
   const filtered = getFilteredNotes();
 
-  if (filtered.length === 0) {
+  if (filtered.length === 0 || shouldShowInitialEmptyState()) {
     const emptyState = document.createElement('div');
     emptyState.className = 'empty-state';
-    emptyState.textContent = searchQuery ? getMessage('emptySearchResults') : getMessage('emptyNoteList');
+    emptyState.setAttribute('role', 'listitem');
+
+    if (searchQuery) {
+      emptyState.textContent = getMessage('emptySearchResults');
+    } else {
+      const title = document.createElement('p');
+      title.className = 'empty-state-title';
+      title.textContent = getMessage('emptyNoteList');
+      emptyState.appendChild(title);
+
+      const description = document.createElement('p');
+      description.className = 'empty-state-description';
+      description.textContent = getMessage('emptyNoteListDescription');
+      emptyState.appendChild(description);
+
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.className = 'empty-state-action';
+      action.textContent = getMessage('emptyNoteAction');
+      action.addEventListener('click', () => textArea.focus());
+      emptyState.appendChild(action);
+    }
+
     noteList.appendChild(emptyState);
+    updateOnboardingGuide();
     return;
   }
 
@@ -152,6 +185,7 @@ function renderList() {
 
     noteList.appendChild(div);
   });
+  updateOnboardingGuide();
 }
 
 function deleteNote(index: number) {
@@ -220,8 +254,14 @@ upgradeBtn.addEventListener('click', () => {
 
 textArea.addEventListener('input', () => {
   if (currentIndex >= 0) {
+    const wasInitialEmptyState = shouldShowInitialEmptyState();
     notes[currentIndex].content = textArea.value;
     saveNotes();
+    const isInitialEmptyState = shouldShowInitialEmptyState();
+    if (wasInitialEmptyState || isInitialEmptyState) {
+      renderList();
+      return;
+    }
     // Update the list title as user types
     const activeItem = Array.from(noteList.children).find(el => (el as HTMLDivElement).dataset.index === currentIndex.toString()) as HTMLDivElement | undefined;
     if (activeItem) {
