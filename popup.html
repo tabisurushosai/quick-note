@@ -103,6 +103,7 @@
       color: var(--text);
       cursor: pointer;
       font-weight: 600;
+      touch-action: manipulation;
     }
 
     button:not(.note-select):not(.delete-note):hover {
@@ -373,6 +374,17 @@
       background: var(--danger-bg);
       color: var(--danger);
     }
+
+    @media (forced-colors: active) {
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible,
+      .note-item:focus-within {
+        outline: 3px solid CanvasText;
+        outline-offset: 2px;
+        box-shadow: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -394,6 +406,7 @@
       <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="メモを検索" autocomplete="off" enterkeyhint="search" aria-controls="note-list">
     </div>
     <p id="note-list-help" class="visually-hidden" data-i18n="noteListHelp">メモ一覧では、Tabキーで選択ボタンと削除ボタンの間を移動できます。上下の矢印キーで前後のメモへ、Homeキーで先頭へ、Endキーで末尾へ移動できます。</p>
+    <p id="note-list-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
     <div id="note-list" role="list" data-i18n-aria-label="noteListLabel" aria-label="メモ一覧" aria-describedby="note-list-help"></div>
     <label class="visually-hidden" for="note-content" data-i18n="noteContentLabel">メモ本文</label>
     <textarea id="note-content" data-i18n-placeholder="placeholder" placeholder="メモを選択するか、新しいメモを作成してください。" aria-describedby="app-status"></textarea>
