@@ -86,6 +86,14 @@ function getNoteTitle(note: Note, index: number): string {
   return getNoteTitleText(note, getMessage('emptyNote', [formatNumber(index + 1)]));
 }
 
+function getSelectNoteAriaLabel(title: string, isActive: boolean): string {
+  return isActive ? getMessage('currentNoteAriaLabel', [title]) : title;
+}
+
+function getDeleteNoteAriaLabel(title: string): string {
+  return getMessage('deleteNoteAriaLabel', [title]);
+}
+
 function getFilteredNotes(): FilteredNote[] {
   return getFilteredNoteModels(notes, isPremium, searchQuery);
 }
@@ -116,6 +124,15 @@ function selectAdjacentNote(index: number, direction: -1 | 1): void {
   focusNoteItem(nextNote.originalIndex);
 }
 
+function selectFilteredBoundaryNote(boundary: 'first' | 'last'): void {
+  const filtered = getFilteredNotes();
+  const nextNote = boundary === 'first' ? filtered[0] : filtered[filtered.length - 1];
+  if (!nextNote) return;
+
+  selectNote(nextNote.originalIndex, false);
+  focusNoteItem(nextNote.originalIndex);
+}
+
 function handleNoteItemKeydown(event: KeyboardEvent, index: number): void {
   if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
     event.preventDefault();
@@ -123,6 +140,12 @@ function handleNoteItemKeydown(event: KeyboardEvent, index: number): void {
   } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
     event.preventDefault();
     selectAdjacentNote(index, 1);
+  } else if (event.key === 'Home') {
+    event.preventDefault();
+    selectFilteredBoundaryNote('first');
+  } else if (event.key === 'End') {
+    event.preventDefault();
+    selectFilteredBoundaryNote('last');
   }
 }
 
@@ -174,8 +197,10 @@ function renderList(): void {
     const selectBtn = document.createElement('button');
     selectBtn.type = 'button';
     selectBtn.className = 'note-select';
-    selectBtn.setAttribute('aria-current', isActive.toString());
-    selectBtn.setAttribute('aria-label', title);
+    if (isActive) {
+      selectBtn.setAttribute('aria-current', 'true');
+    }
+    selectBtn.setAttribute('aria-label', getSelectNoteAriaLabel(title, isActive));
     selectBtn.addEventListener('click', () => selectNote(index));
     selectBtn.addEventListener('keydown', (event) => handleNoteItemKeydown(event, index));
 
@@ -190,7 +215,7 @@ function renderList(): void {
     deleteBtn.className = 'delete-note';
     deleteBtn.textContent = '×';
     deleteBtn.title = getMessage('tooltipDelete');
-    deleteBtn.setAttribute('aria-label', getMessage('tooltipDelete'));
+    deleteBtn.setAttribute('aria-label', getDeleteNoteAriaLabel(title));
     deleteBtn.addEventListener('click', (event) => {
       event.stopPropagation();
       deleteNote(index);
@@ -284,7 +309,7 @@ textArea.addEventListener('input', () => {
       if (titleSpan) {
         const title = getNoteTitle(notes[currentIndex], currentIndex);
         titleSpan.textContent = title;
-        selectBtn?.setAttribute('aria-label', title);
+        selectBtn?.setAttribute('aria-label', getSelectNoteAriaLabel(title, true));
       }
     }
   }
