@@ -1,8 +1,9 @@
-import type { Note, NoteStateHydrationInput } from '../core/notes';
+import type { NoteStateHydrationInput } from '../core/notes';
 
 export type NotesStorageSnapshot = NoteStateHydrationInput;
 
 export type NotesStorageKey = keyof NotesStorageSnapshot;
+type RequiredHydrationValue<TKey extends NotesStorageKey> = Exclude<NotesStorageSnapshot[TKey], undefined>;
 
 export const LEGACY_QUICK_NOTE_KEY = 'quickNote' satisfies NotesStorageKey;
 export const NOTE_STORAGE_KEYS = [
@@ -14,10 +15,10 @@ export const NOTE_STORAGE_KEYS = [
 ] as const satisfies readonly NotesStorageKey[];
 
 export interface NotesStoragePersistedState {
-  notes: Note[];
-  lastSelectedIndex: number;
-  isPremium: boolean;
-  trialStartTs: number | null;
+  notes: RequiredHydrationValue<'notes'>;
+  lastSelectedIndex: RequiredHydrationValue<'lastSelectedIndex'>;
+  isPremium: RequiredHydrationValue<'isPremium'>;
+  trialStartTs: RequiredHydrationValue<'trialStartTs'>;
 }
 
 export interface NotesStorageAdapter {

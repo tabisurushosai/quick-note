@@ -1,4 +1,5 @@
 import {
+  createEmptyNote,
   deleteNoteAt,
   getFilteredNotes,
   getNoteTitle,
@@ -128,6 +129,10 @@ function getCurrentNoteTitle(): string | null {
   if (currentIndex < 0) return null;
 
   return formatNoteTitle(getNoteAt(currentIndex), currentIndex);
+}
+
+function syncEditorValueToCurrentNote(): void {
+  textArea.value = currentIndex >= 0 ? getNoteAt(currentIndex).content : '';
 }
 
 function createEmptyStateText(className: 'empty-state-title' | 'empty-state-description', messageKey: string): HTMLParagraphElement {
@@ -321,11 +326,7 @@ function deleteNote(index: number): void {
 
   saveNotes();
   renderList();
-  if (currentIndex >= 0) {
-    textArea.value = getNoteAt(currentIndex).content;
-  } else {
-    textArea.value = '';
-  }
+  syncEditorValueToCurrentNote();
   focusAfterDelete();
 }
 
@@ -356,7 +357,7 @@ newNoteBtn.addEventListener('click', () => {
     alert(getMessage('premiumLimit', [formatNumber(FREE_NOTE_LIMIT)]));
     return;
   }
-  notes.push({ content: '' });
+  notes.push(createEmptyNote());
   currentIndex = notes.length - 1;
   saveNotes();
   renderList();
@@ -418,7 +419,7 @@ async function initialize(): Promise<void> {
     updatePremiumUI();
     renderList();
     if (currentIndex >= 0) {
-      textArea.value = getNoteAt(currentIndex).content;
+      syncEditorValueToCurrentNote();
       textArea.focus();
     }
     updateStatus('statusSaved', 'saved');
