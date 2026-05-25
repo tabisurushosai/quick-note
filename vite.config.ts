@@ -31,6 +31,7 @@ function ensureExtensionAssets() {
 
 export default defineConfig({
   publicDir,
+  copyPublicDir: true,
   plugins: [ensureExtensionAssets()],
   build: {
     outDir,
